@@ -33,7 +33,15 @@ class UserDB():
 
 
 class User():
-    def __init__(self, ID=-1, password="I", username="Do", address="Not", city="Exist", orders=["Here"], favorites=[-1], balance = -1.0):
+    def __init__(self,
+                 ID=-1,
+                 password="I",
+                 username="Do",
+                 address="Not",
+                 city="Exist",
+                 orders=["Here"],
+                 favorites=[-1],
+                 balance = -1.0):
         self.ID = ID
         self.password = password
         self.username = username
@@ -44,7 +52,14 @@ class User():
         self.balance = balance
 
     def export_as_list(self):
-        return [ self.ID, self.password, self.username, self.address, self.city, self.orders, self.favorites, self.balance]
+        return [ self.ID,
+                self.password,
+                self.username,
+                self.address,
+                self.city,
+                self.orders,
+                self.favorites,
+                self.balance]
 
 class Admin():
     def __init__(self, ID, password, username, bookstores):
