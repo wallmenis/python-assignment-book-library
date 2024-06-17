@@ -23,13 +23,31 @@ class UserDB():
             self.admin_df = pd.read_csv("../data/admins.csv")
         except OSError:
             print("Failed to find/read admins.csv file. Continuing with empty DataFrame")
-
+            
+        self.user_df = self.user_df.set_index("ID")
+        self.admin_df = self.admin_df.set_index("ID")
+        
     def add_admin_to_dataframe(self, admin):
-        admin_df.iat[admin_df.shape[0]] = admin.export_as_list()
+        tmp_admin = admin.Copy()
+        tmp_admin.ID = self.admin_df.loc[admin_df.shape[0]] + 1
+        self.admin_df = pd.concat(pd.DataFrame(admin.export_as_list()) columns = self.admin_df.columns, self.admin_df)
 
     def add_user_to_dataframe(self, user):
-        user_df.iat[user_df.shape[0]] = user.export_as_list()
-
+        tmp_user = user.Copy()
+        tmp_user.ID = self.user_df.loc[admin_df.shape[0]] + 1
+        self.user_df = pd.concat(pd.DataFrame(user.export_as_list()) columns = self.user_df.columns, self.user_df)
+    
+    def remove_admin_from_dataframe(self, admin):
+        self.admin_df.drop(index = admin.ID)
+    
+    def remove_user_from_dataframe(self, user):
+        self.user_df.drop(index = user.ID)
+    
+    def edit_user_in_dataframe(self, user):
+        self.user_df.loc[user.ID] = user.export_as_list()
+    
+    def edit_admin_in_dataframe(self, admin):
+        self.admin_df.loc[admin.ID] = admin.export_as_list()
 
 
 class User():

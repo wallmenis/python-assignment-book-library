@@ -25,28 +25,31 @@ class LibraryDB():
             self.reviews_df = pd.read_json("../data/reviews.json").astype('object')
         except OSError:
             print("Failed to find/read reviews.json file. Continuing with empty DataFrame")
+        
+        self.books_df = self.books_df.set_index("ID")
+        self.reviews_df = self.reviews_df.set_index("ID")
 
     def get_book_at_index(self, index):
         return Book(
-            ID = self.books_df.iat[index, 0],
-            title = self.books_df.iat[index, 1],
-            author = self.books_df.iat[index, 2],
-            publisher = self.books_df.iat[index, 3],
-            categories = self.books_df.iat[index, 4],
-            cost = self.books_df.iat[index, 5],
-            shipping_cost = self.books_df.iat[index, 6],
-            availiability = self.books_df.iat[index, 7]
-            copies = self.books_df.iat[index, 8],
-            bookstores = self.books_df.iat[index, 9]
+            ID = index,
+            title = self.books_df.loc[index, "title"],
+            author = self.books_df.loc[index, "author"],
+            publisher = self.books_df.loc[index, "publisher"],
+            categories = self.books_df.loc[index, "categories"],
+            cost = self.books_df.loc[index, "cost"],
+            shipping_cost = self.books_df.loc[index, "shipping_cost"],
+            availiability = self.books_df.loc[index, "availiability"]
+            copies = self.books_df.loc[index, "copies"],
+            bookstores = self.books_df.loc[index, "bookstores"]
             )
 
     def get_book_reviews_by_book(self, book):           # I am trying to abstract as much as possible because seeing
                                                         # the raw code with pandas will be hard to understand without
                                                         # excessive comments (or a painful read).
-        return self.books_df.loc[book.ID,'book_id']
+        return self.reviews_df.loc[reviews_df["book_id"] == book.ID]
 
     def get_book_reviews_by_user(self, user):
-        return self.books_df.loc[user.ID,'user_id']
+        return self.reviews_df.loc[reviews_df["user_id"] == user.ID]
     
     def get_book_review_ub(self, book, user):
         tmp_df = get_book_reviews_by_book(book)
