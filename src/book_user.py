@@ -93,14 +93,17 @@ class UserDB():
     def add_user_to_dataframe(self, user):
         if not self.get_user_by_username(user.username).empty:
             return False
-        tmp_user = user.Copy()
-        tmp_user.ID = self.user_df.index[admin_df.shape[0]-1] + 1
-        self.user_df = pd.concat([pd.DataFrame(user.export_as_list(), columns = self.user_df.columns), self.user_df])
+        tmp_user = user
+        if self.user_df.empty:
+            tmp_user.ID = 1
+        else:
+            tmp_user.ID = self.user_df.index[self.user_df.shape[0]-1] + 1
+        self.user_df.loc[tmp_user.ID] = dict(zip(self.user_df.columns,user.export_as_list()[1:]))
         return True
     
     def remove_admin_from_dataframe(self, admin):
         if not self.admin_df.loc[admin.ID].empty:
-            self.admin_df.drop(index = admin.ID)
+            self.admin_df = self.admin_df.drop(index = admin.ID)
             return True
         return False
     
@@ -138,8 +141,8 @@ class UserDB():
 class User():
     def __init__(self,
                  ID=-1,
-                 password="I",
                  username="Do",
+                 password="I",
                  address="Not",
                  city="Exist",
                  orders=[-1],

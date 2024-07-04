@@ -71,7 +71,7 @@ class Authenticator():
         data_is_ok = False
         print("Do not worry for any mistakes; we will show you your information before confirming.")
         while(not data_is_ok):
-            print("Please enter username for ADMIN account")
+            print("Please enter username for USER account")
             username = input()
             password = password_register()
             print("Please enter your home address.")
@@ -82,6 +82,7 @@ class Authenticator():
             print(f"username: {username}")
             print(f"home address: {address}")
             print(f"city: {city}")
+            inp = input()
             if re.match("YES", inp.replace(" ","")):
                 data_is_ok = True
                 if self.userdb.add_user_to_dataframe(bu.User(-1, username, password, address, city, [], [], 0.0)):
@@ -95,7 +96,21 @@ class Authenticator():
         if self.userdb.admin_df.empty:
             print("No registered admin found. Please register a new admin.")
             self.register_admin()
-        self.login()
+        print("Please choose.")
+        print("1. Login")
+        print("2. Register User")
+        print("0. Exit")
+        inp = input()
+        if int(inp) == 1:
+            self.login()
+        elif int(inp) == 2:
+            self.register_user()
+            self.save_all()
+            exit()
+        else:
+            exit()
+        # print("2. Register User")
+        
     
     def get_avail_books_for_del(self):
         bk_per_bks = self.librarydb.get_books_by_bookstores(self.currentUser.bookstores)
