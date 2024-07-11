@@ -141,6 +141,7 @@ class Authenticator():
             print("(9) Check book total cost.")
             print("(10) Delete a user.")
             print("(11) Get plots.")
+            print("(12) Delete Review.")
             print("(0) Exit")
         else:
             print("User is regular")
@@ -185,6 +186,8 @@ class Authenticator():
                 self.currentUser.delete_user()
             elif inp == 11:
                 self.currentUser.make_statistics()
+            elif inp == 12:
+                self.currentUser.delete_reviews()
             else:
                 print("Invalid option")
         else:
@@ -199,7 +202,7 @@ class Authenticator():
             elif inp == 5:
                 self.currentUser.check_balance()
             elif inp == 6:
-                self.currentUser.browse_favorite_books()
+                self.currentUser.check_book_avail()
             elif inp == 7:
                 self.currentUser.order_book()
             elif inp == 8:

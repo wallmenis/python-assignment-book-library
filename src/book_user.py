@@ -732,6 +732,66 @@ class Admin():
         inp = input()
         self.auther.librarydb.save_to_path(inp)
     
+    def delete_reviews(self):
+        books = self.auther.get_avail_books_for_del()
+        print(books)
+        books_to_del = bo.print_dataframe(  df = books,
+                                            df_name = "books",
+                                            df_fields = [ "title", "author" ],
+                                            df_title = "Please search the book you would like to delete reviews of.",
+                                            use_search = True,
+                                            df_search_term = "title",
+                                            interval = 10
+                                            )
+        if books_to_del == "":
+            return
+        final_books = pd.DataFrame(columns=books.columns)
+        for i in books_to_del:
+            final_books = pd.concat([blm.get_books_by_name_with_df(books, i), final_books])
+        books_to_del_int = []
+        if final_books.shape[0] > 1:
+            books_to_del = bo.print_dataframe(  df = final_books,
+                                                df_name = "books",
+                                                df_fields = ["title", "author"],
+                                                df_title = "Please search the ID of the book you would like to delete reviews.",
+                                                use_search = True,
+                                                df_search_term = "ID",
+                                                interval = 10
+                                                )
+            if books_to_del == "":
+                return
+            for i in books_to_del:
+                books_to_del_int.append(int(i))
+            if not set(final_books.index.values).issuperset(set(books_to_del_int)):
+                print("Invalid index. Please try again.")
+                return 
+        else:
+            books_to_del_int.append(final_books.index.values[0])
+        final_reviews = pd.DataFrame(columns=self.auther.librarydb.reviews_df.columns)
+        for i in books_to_del_int:
+            final_reviews = pd.concat([self.auther.librarydb.reviews_df.loc[self.auther.librarydb.reviews_df["book_id"] == i], final_reviews])
+            reviews_to_del = bo.print_dataframe(  df = final_reviews,
+                                                df_name = "reviews",
+                                                df_fields = ["rating", "contents", "user_id"],
+                                                df_title = "Please search the IDs of the reviews you would like to delete.",
+                                                use_search = True,
+                                                df_search_term = "IDs",
+                                                interval = 10
+                                                )
+            reviews_to_del_int = []
+            for i in reviews_to_del:
+                reviews_to_del_int.append(int(i))
+                
+            for i in reviews_to_del_int:
+                print("Would you like to delete the whole review?")
+                inp = input()
+                if inp == "Y":
+                    self.auther.librarydb.remove_review_with_ID(i)
+                    print(f"Deleted review with id {i}")
+                else:
+                    self.auther.librarydb.reviews_df.loc[i]["contents"] = ""
+            # self.auther.librarydb.remove_book_with_ID(i)
+    
     def delete_user(self):
         users = self.auther.userdb.user_df
         user_to_del = bo.print_dataframe(  df = users,
