@@ -161,6 +161,46 @@ class User():
     def set_auther(self, auther):
         self.auther = auther
 
+    def show_recommendations():
+        book_categories = set()
+        for index, row in self.auther.librarydb.books_df.iterrows():
+            for i in row["categories"]:
+                book_categories.add(i)
+        counter = dict(zip(list(book_categories), np.zeros(len(list(book_categories)))))
+        #user = users_df.loc[user_id]
+        #print(user)
+        book_ids_to_recommend = []
+        for i in self.favorites:
+            if i > -1 :
+                book_ids_to_recommend.append(i)
+        
+        for i in self.orders:
+            book_ids_to_recommend.append(i)
+                
+        for j in book_ids_to_recommend:
+            for i in self.auther.librarydb.books_df.loc[j]["categories"]:
+                counter[i] += 1
+                
+        max_category = list(counter.keys())[0]
+        
+        for i in list(counter.keys()):
+            if counter[i] > counter[max_category]:
+                max_category = i
+                
+        books_to_recommend = pd.DataFrame(self.auther.librarydb.books_df)
+        
+        for j in book_ids_to_recommend:
+            books_to_recommend.drop(index = j)
+        
+        
+        for index, row in pd.DataFrame(books_to_recommend).iterrows():
+            if not max_category in row["categories"]:
+                books_to_recommend.drop(index = index)
+        
+        books_to_recommend.reset_index()
+                
+        return books_to_recommend.loc[rd.randint(0, books_to_recommend.shape[0])]["title"]
+    
     def check_balance(self):
         print(f"Your balance is {self.balance}$")
         print("Would you like to add more funds?[Y/n]")
@@ -259,6 +299,7 @@ class User():
                         print("Book is not availiable from this bookstore")
                         return
                     self.balance = self.balance - cost
+                    self.orders.append(book.ID)
                     self.auther.userdb.edit_user_in_dataframe(self)
                     print("You have now ordered the below book.")
                     book.print_me()
