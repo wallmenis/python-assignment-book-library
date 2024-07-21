@@ -4,6 +4,7 @@ import book_library_management as blm
 import book_authentication as ba
 import numpy as np
 import ast
+import random as rd
 
 class UserDB():
     
@@ -161,7 +162,7 @@ class User():
     def set_auther(self, auther):
         self.auther = auther
 
-    def show_recommendations():
+    def show_recommendations(self):
         book_categories = set()
         for index, row in self.auther.librarydb.books_df.iterrows():
             for i in row["categories"]:
@@ -190,16 +191,16 @@ class User():
         books_to_recommend = pd.DataFrame(self.auther.librarydb.books_df)
         
         for j in book_ids_to_recommend:
-            books_to_recommend.drop(index = j)
+            books_to_recommend = books_to_recommend.drop(index = j)
         
         
         for index, row in pd.DataFrame(books_to_recommend).iterrows():
             if not max_category in row["categories"]:
-                books_to_recommend.drop(index = index)
+                books_to_recommend = books_to_recommend.drop(index = index)
         
-        books_to_recommend.reset_index()
+        books_to_recommend = books_to_recommend.reset_index()
                 
-        return books_to_recommend.loc[rd.randint(0, books_to_recommend.shape[0])]["title"]
+        print(f"We recommend trying \"{books_to_recommend.loc[rd.randint(0, books_to_recommend.shape[0])]["title"]}\" out")
     
     def check_balance(self):
         print(f"Your balance is {self.balance}$")
@@ -254,7 +255,8 @@ class User():
         self.auther.userdb.edit_user_in_dataframe(self)
     
     def order_book(self):
-        books = self.auther.librarydb.get_books_no_thought(self.ID, self.favorites)
+        # books = self.auther.librarydb.get_books_no_thought(self.ID, self.favorites)
+        books = self.auther.librarydb.get_books_no_thought(self.orders)
         books_to_order = bo.print_dataframe( df = books,
                                             df_name = "books",
                                             df_fields = ["title", "author", "cost", "shipping_cost"],
@@ -263,6 +265,8 @@ class User():
                                             df_search_term = "title",
                                             interval = 10
                                             )
+        if books_to_order == "":
+            return
         final_books = pd.DataFrame(columns=books.columns)
         for i in books_to_order:
             final_books = pd.concat([blm.get_books_by_name_with_df(books, i), final_books])
@@ -276,6 +280,8 @@ class User():
                                                 interval = 10,
                                                 multiple = False
                                                 )
+            if book_to_order == "":
+                return
         if not book_to_order == []:
             book_to_order = int(book_to_order)
             if not set(final_books.index.values).issuperset(set([book_to_order])):
@@ -320,8 +326,14 @@ class User():
             orders_to_return_int.append(int(i))
         for i in orders_to_return_int:
             self.balance = self.balance + self.auther.librarydb.return_book_with_order_id(i)
+            k = 0
+            while k < len(self.orders):
+                if self.orders[k] == i:
+                    self.orders.pop(k)
+                else:
+                    k += 1
             self.auther.userdb.edit_user_in_dataframe(self)
-    
+            
     def remove_books_from_favorites(self):
         real_favorites = []
         fake_favorites = []
@@ -354,6 +366,9 @@ class User():
         self.auther.userdb.edit_user_in_dataframe(self)
         
     def write_a_review(self):
+        if self.orders == []:
+            print("Orders empty, you can't write a review.")
+            return
         orders = self.auther.librarydb.get_orders_by_user_id(self.ID)
         print("The ordered books:")
         ordered_books = self.auther.librarydb.books_df.loc[orders['book_id']]
@@ -811,6 +826,9 @@ class Admin():
         final_reviews = pd.DataFrame(columns=self.auther.librarydb.reviews_df.columns)
         for i in books_to_del_int:
             final_reviews = pd.concat([self.auther.librarydb.reviews_df.loc[self.auther.librarydb.reviews_df["book_id"] == i], final_reviews])
+            if final_reviews.empty:
+                print("This book has no reviews")
+                continue
             reviews_to_del = bo.print_dataframe(  df = final_reviews,
                                                 df_name = "reviews",
                                                 df_fields = ["rating", "contents", "user_id"],
@@ -830,7 +848,9 @@ class Admin():
                     self.auther.librarydb.remove_review_with_ID(i)
                     print(f"Deleted review with id {i}")
                 else:
-                    self.auther.librarydb.reviews_df.loc[i]["contents"] = ""
+                    temp = dict(self.auther.librarydb.reviews_df.loc[i])
+                    temp['contents'] = ''
+                    self.auther.librarydb.reviews_df.loc[i] = temp
             # self.auther.librarydb.remove_book_with_ID(i)
     
     def delete_user(self):

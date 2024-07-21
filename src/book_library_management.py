@@ -182,15 +182,17 @@ class LibraryDB():
         self.orders_df = self.orders_df.drop(index = index)
         return cost
     
-    def get_books_no_thought(self, user_id, favorites):
-        final_books = self.books_df
-        orders = self.get_orders_by_user_id(user_id)
-        final_books = final_books.drop(index = orders['book_id'].values)
+    def get_books_no_thought(self, orders):
+        final_books = pd.DataFrame(self.books_df)
+        # orders = self.get_orders_by_user_id(user_id)
+        print(orders)
+        for i in orders:
+            final_books = final_books.drop(index = i)
         real_books = []
-        for i in favorites:
-            if i > 0:
-                real_books.append(i)
-        final_books = final_books.drop(index = real_books)
+        # for i in favorites:
+        #     if i > 0:
+        #         real_books.append(i)
+        # final_books = final_books.drop(index = real_books)
         return final_books
     
     def order_book_with_index_from_bookstore(self, index, bookstore, user_id):
