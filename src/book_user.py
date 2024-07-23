@@ -161,7 +161,42 @@ class User():
         
     def set_auther(self, auther):
         self.auther = auther
-
+    
+    def check_book_avail(self):
+        real_favorites = []
+        fake_favorites = []
+        for i in self.favorites:
+            if i > 0:
+                real_favorites.append(i)
+            else:
+                fake_favorites.append(i)
+        books_to_show = self.auther.librarydb.books_df.loc[real_favorites]
+        ids_to_select = bo.print_dataframe(books_to_show,
+                           df_name = "books",
+                           df_fields = ['title', 'author'],
+                           df_title = "Please select books to view availiability of",
+                           df_search_term="IDs",
+                           use_search = True
+                           )
+        if ids_to_select == []:
+            print("No book selected.")
+        ids_to_select_int = []
+        for i in ids_to_select:
+            ids_to_select_int.append(int(i))
+        
+        ids_to_select = []
+        for i in ids_to_select_int:
+            if not i in list(books_to_show.index):
+                print("Excluding " + i)
+            else:
+                ids_to_select.append(i)
+        
+        books_to_show = books_to_show.loc[ids_to_select]
+        books_to_show = books_to_show.loc[books_to_show["availiability"] == True]
+        
+        print("Below books are availiable")
+        print(books_to_show[["title","cost"]])
+    
     def show_recommendations(self):
         book_categories = set()
         for index, row in self.auther.librarydb.books_df.iterrows():

@@ -198,8 +198,11 @@ class LibraryDB():
     def order_book_with_index_from_bookstore(self, index, bookstore, user_id):
         if self.books_df.loc[index]['bookstores'][bookstore] < 1 or not self.books_df.loc[index]['availiability']:
             return 0.0
+        
         self.books_df.loc[index]['bookstores'][bookstore] = self.books_df.loc[index]['bookstores'][bookstore] - 1
         self.books_df.loc[index,'copies'] = self.books_df.loc[index]['copies'] - 1
+        if self.books_df.loc[index]['copies'] < 1:
+            self.books_df.loc[index]['availiability'] = False
         order_dict ={   'book_id' : index ,
                         'user_id' : user_id,
                         'bookstore' : bookstore,
@@ -308,6 +311,7 @@ class LibraryDB():
     
     def edit_book(self, book):
         if not self.books_df.empty:
+            book.calculate_cost_avail()
             self.books_df.loc[book.ID] = dict(zip(self.books_df.columns,book.export_as_list()[1:]))
             return True
         return False
@@ -483,3 +487,7 @@ class Book():  # The data types of each value of the object are strictly followi
             print("Not availiable.")
         print("Copies per bookstore:")
         bo.print_dict(self.bookstores)
+        
+    def calculate_cost_avail(self):
+        if self.copies < 1:
+            self.availiability = False
