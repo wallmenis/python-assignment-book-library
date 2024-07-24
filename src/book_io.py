@@ -44,10 +44,10 @@ def print_dataframe(df, df_name = "entries", df_search_term = "IDs", df_title="S
                 print(f"You may also type the {df_search_term} to select the specific {df_name}.")
         inp = input()
         if re.match("/n", inp):
-            if not ind*interval > datf.shape[0]:
-                ind = ind + 1
-            else:
+            if ind*interval > datf.shape[0] - interval:
                 print(f"No {df_name} left.")
+            else:
+                ind = ind + 1
         elif re.match("/b", inp):
             if ind == 0:
                 print("We are at the start.")
@@ -70,8 +70,12 @@ def dict_editor(dictionary):
     ndictionary = dictionary
     inp = "Y"
     while inp == "Y":
-        print("Please enter the values to be edited (comma separated).")
+        print("Editing Below:")
+        print(ndictionary)
+        
+        print("Please select some of the above the values to be edited (comma separated).")
         inp = input()
+        
         print(inp)
         inp = inp.split(',')
         for i in inp:
@@ -96,13 +100,15 @@ def dict_editor_custom(dictionary, fields):
     inp="Y"
     while inp == "Y":
         for i in fields:
-            print(f"Now editing {i}.")
+            print(f"Now editing {i}. Current value \"{ndictionary[i]}\" Press enter to not alter.")
             if type(ndictionary[i]) == dict:
-                ndictionary[i] = dict_editor(i)
+                ndictionary[i] = dict_editor(ndictionary[i])
             elif type(ndictionary[i]) == list:
-                ndictionary[i] = list_editor(i)
+                ndictionary[i] = list_editor_int(ndictionary[i])
             else:
-                ndictionary[i] = input()
+                inp2 = input()
+                if inp2 != "":
+                    ndictionary[i] = inp2
         print("These are the new changes. Would you like to try again?[Y/N/D]")
         print_dict(ndictionary)
         inp = input()
@@ -117,6 +123,8 @@ def list_editor_int(list_to_edit, list_name = "value", text = True):
         print("List preview:")
         print(list_to_edit)
     inp = input()
+    if inp == "":
+        return list_to_edit
     inp = inp.split(',')
     ret = []
     for i in inp:

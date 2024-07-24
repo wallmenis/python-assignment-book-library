@@ -157,9 +157,9 @@ class User():
         self.orders = orders
         self.favorites = favorites
         self.balance = balance
-        self.auther = []
+        self.auther = None
         
-    def set_auther(self, auther):
+    def set_auther(self, auther ):
         self.auther = auther
     
     def check_book_avail(self):
@@ -428,12 +428,33 @@ class User():
     def add_books_to_favorites_csv(self):
         print("Please type the path of the csv of the books you would like to add.")
         inp = input()
+        book_tmp = pd.DataFrame(self.auther.librarydb.books_df)
         imported_df = pd.read_csv(inp).astype('object')
-        final_imported_df = imported_df
+        def to_int_list(lis):
+            if not pd.isna(lis):
+                return ast.literal_eval(lis)
+            return []
+        self.imported_df['categories'] = self.imported_df['categories'].apply(to_int_list)
+        self.imported_df['bookstores'] = self.imported_df['bookstores'].apply(to_int_list)
+        # final_imported_df = imported_df
         for index, row in imported_df.iterrows():
             if not self.auther.librarydb.check_if_book_real(row['title'], row['author'], row['publisher'], row['categories']):
-                final_imported_df.drop(index = index)
-            self.auther.librarydb.add_custom_book(row['title'], row['author'], row['publisher'], row['categories'])
+                # final_imported_df = final_imported_df.drop(index = index)
+                self.favorites.append(self.auther.librarydb.add_custom_book(row['title'], row['author'], row['publisher'], row['categories'], self.ID))
+            else:
+                book_tmp = book_tmp.loc[book_tmp['title'] == row['title']]
+                book_tmp = book_tmp.loc[book_tmp['author'] == row['author']]
+                book_tmp = book_tmp.loc[book_tmp['publisher'] == row['publisher']]
+                book_tmp = book_tmp.loc[book_tmp['categories'] == row['categories']]
+                
+        fave_set = set(self.favorites)
+        
+        # for i in list(final_imported_df.index):
+        #     fave_set.add(i)
+        for i in list(book_tmp.index):
+            fave_set.add(i)
+        self.favorites = list(fave_set)
+        self.auther.userdb.edit_user_in_dataframe(self)
         
 
     def browse_favorite_books(self):
@@ -446,6 +467,9 @@ class User():
         fake_books_to_show = self.auther.librarydb.get_custom_book_by_user_id(self.ID)
         fake_books_to_show = fake_books_to_show.drop(labels = 'user_id', axis = 1 )
         books_to_show = pd.concat([books_to_show,fake_books_to_show])
+        if self.favorites == []:
+            print("No favorite books exist")
+            return
         def trigg(boolean):
             if boolean:
                 return "Is Availiable"
@@ -455,7 +479,28 @@ class User():
         def trigg2(number):
             return f"{number}$"
         books_to_show['cost'] = books_to_show['cost'].apply(trigg2)
-        bo.print_dataframe(books_to_show, df_name = "books", df_fields = ['title', 'cost', 'availiability'])
+        book_outp = bo.print_dataframe(books_to_show,
+                           df_name = "books",
+                           df_fields = ['title', 'cost', 'availiability'],
+                           use_search = True,
+                           multiple = True,
+                           df_title = "Favorite books availiability and cost.",
+                           df_search_term = "Book IDs"
+                           )
+        if book_outp == []:
+            print("Plain enter is invalid input.")
+            return
+        book_outp_int = []
+        for i in book_outp:
+            if not int(i) in list(books_to_show.index):
+                print("Excluding id " + i)
+            else:
+                book_outp_int.append(int(i))
+        if books_to_show.loc[book_outp_int].empty:
+            print("No books found availiable from the selected ones.")
+        else:
+            print("Below is the availiability and price for the selected books.")
+            print(books_to_show.loc[book_outp_int][['title', 'cost', 'availiability']])
     
     def export_as_list(self):
         return [ self.ID,
@@ -492,7 +537,7 @@ class Admin():
         self.username = username
         self.password = password
         self.bookstores = bookstores
-        self.auther = []
+        self.auther = None
     
     def set_auther(self, auther):
         self.auther = auther
@@ -806,6 +851,7 @@ class Admin():
                                                 interval = 10
                                                 )
             if books_to_del == "":
+                print("Invalid Input.")
                 return
             books_to_del_int = []
             for i in books_to_del:
@@ -817,6 +863,9 @@ class Admin():
                     self.auther.librarydb.remove_book_with_ID(i)
         else:
             self.auther.librarydb.remove_book_with_ID(final_books.index.values[0])
+        
+        
+            
 
     def export_books_df(self):
         print("Please insert the path to export.")

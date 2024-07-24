@@ -105,8 +105,16 @@ class LibraryDB():
         #     for i in lis.keys():
         #         result[i] = int(result[i])
         #     return result
-        self.books_df['categories'] = self.books_df['categories'].apply(lambda x : ast.literal_eval(x))
-        self.books_df['bookstores'] = self.books_df['bookstores'].apply(lambda x : ast.literal_eval(x))
+        def to_int_list(lis):
+            if not pd.isna(lis):
+                return ast.literal_eval(lis)
+            return []
+        self.books_df['categories'] = self.books_df['categories'].apply(to_int_list)
+        self.books_df['bookstores'] = self.books_df['bookstores'].apply(to_int_list)
+        
+        self.user_books_df['categories'] = self.user_books_df['categories'].apply(to_int_list)
+        self.user_books_df['bookstores'] = self.user_books_df['bookstores'].apply(to_int_list)
+
         #print(self.books_df['categories'])
     
     def get_custom_book_by_user_id(self,user_id):
@@ -141,6 +149,7 @@ class LibraryDB():
                                             'bookstores' : dict(),
                                             'user_id' : user_id
                                             }
+            return tmp_id
 
     def get_book_at_index(self, index):
         return Book(
@@ -162,6 +171,8 @@ class LibraryDB():
         for i in bookstores:
             rez = rez + self.books_df.loc[index]['bookstores'][i]
         self.books_df.at[index, 'copies'] = rez
+        if rez <= 0:
+            self.books_df.at[index, 'availiability'] = False
     
     def get_books_by_categories(self,categories):
         categories_st = set(categories)
@@ -268,9 +279,9 @@ class LibraryDB():
     
     def get_distribution_by_avail_books(self):
         bk = self.books_df.loc[self.books_df['availiability'] == True]
-        result = []
+        result = {}
         for index, row in bk.iterrows():
-            result.append(row['cost'] + row['shipping_cost'])
+            result[row["title"]] = row['cost'] + row['shipping_cost']
         return result
     
     def get_cost_books_by_author(self, author):

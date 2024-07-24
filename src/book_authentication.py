@@ -202,7 +202,8 @@ class Authenticator():
             elif inp == 5:
                 self.currentUser.check_balance()
             elif inp == 6:
-                self.currentUser.check_book_avail()
+                # self.currentUser.check_book_avail()
+                self.currentUser.browse_favorite_books()
             elif inp == 7:
                 self.currentUser.order_book()
             elif inp == 8:
