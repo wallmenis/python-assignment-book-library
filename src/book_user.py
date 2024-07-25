@@ -222,6 +222,8 @@ class User():
         for i in list(counter.keys()):
             if counter[i] > counter[max_category]:
                 max_category = i
+        
+        # books_to_recommend = self.auther.librarydb.get_books_by_categories(max_category)
                 
         books_to_recommend = pd.DataFrame(self.auther.librarydb.books_df)
         
