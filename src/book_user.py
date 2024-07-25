@@ -545,10 +545,10 @@ class Admin():
     def make_statistics(self):
         # self.auther.librarydb.
         # self.auther.userdb.
-        ab = self.auther.librarydb.get_all_bookstores()
-        aa = self.auther.librarydb.get_all_authors()
-        ap = self.auther.librarydb.get_all_publishers()
-        ur = self.auther.userdb.get_all_cities()
+        # ab = self.auther.librarydb.get_all_bookstores()
+        # aa = self.auther.librarydb.get_all_authors()
+        # ap = self.auther.librarydb.get_all_publishers()
+        # ur = self.auther.userdb.get_all_cities()
         ana , anna = self.auther.librarydb.get_num_books_by_author()
         anb, annb = self.auther.librarydb.get_num_books_by_bookstores()
         anp, annp = self.auther.librarydb.get_num_books_by_publisher()
@@ -557,14 +557,14 @@ class Admin():
         ura,  ucity = self.auther.userdb.get_num_users_by_city()
         
         
-        bo.make_bar_graph(ab, list(anb.values()), "Bookstores", "Number of books", "Number of books per bookstore")
-        bo.make_bar_graph(ab, list(annb.values()), "Bookstores", "Number of books", "Number of books per bookstore (copies included)")
-        bo.make_bar_graph(aa, list(ana.values()), "Authors", "Number of books", "Number of books per author")
-        bo.make_bar_graph(aa, list(anna.values()), "Authors", "Number of books", "Number of books per author (copies included)")
-        bo.make_bar_graph(ap, list(anp.values()), "Publishers", "Number of books", "Number of books per publisher")
-        bo.make_bar_graph(ap, list(annp.values()), "Publishers", "Number of books", "Number of books per publisher (copies included)")
-        bo.make_bar_graph(distb, dist, "Distribution", "Number of books", "Number of books per bookstore")
-        bo.make_bar_graph(ucity, list(ura.values()), "Cities", "Number of users", "Number of users per city")
+        bo.make_bar_graph(anb, "Bookstores", "Number of books", "Number of books per bookstore")
+        bo.make_bar_graph(annb, "Bookstores", "Number of books", "Number of books per bookstore (copies included)")
+        bo.make_bar_graph(ana, "Authors", "Number of books", "Number of books per author")
+        bo.make_bar_graph(anna, "Authors", "Number of books", "Number of books per author (copies included)")
+        bo.make_bar_graph(anp, "Publishers", "Number of books", "Number of books per publisher")
+        bo.make_bar_graph(annp, "Publishers", "Number of books", "Number of books per publisher (copies included)")
+        bo.make_bar_graph(dist, "Distribution", "Number of books", "Number of books per bookstore")
+        bo.make_bar_graph(ura, "Cities", "Number of users", "Number of users per city")
     
     def add_book(self):
         book = blm.Book()

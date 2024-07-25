@@ -1,16 +1,19 @@
 import re
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
-def make_bar_graph(name_array, array, name_array_title, array_title, plot_title):
-    plt.figure(figsize=(12, 8))
-    plt.bar(name_array, array, color='red', width=0.4)
+def make_bar_graph(dictionary : dict, name_array_title, array_title, plot_title):
+    #plt.figure(figsize=(12, 8))
+    plt.barh(list(dictionary.keys()), list(dictionary.values()), color='red')
     plt.xlabel(name_array_title)
     plt.ylabel(array_title)
     plt.title(plot_title)
     plt.grid(True)
-    for i, txt in enumerate(array):
-        plt.annotate(txt, (i, array[i]), ha='center')
+    tmp_list = np.array(list(dictionary.values()))
+    tmp_list = np.round(tmp_list, decimals = 2)
+    for i in range(0,tmp_list.shape[0]):
+        plt.annotate(tmp_list[i], (tmp_list[i],i), ha='center')
     plt.show()
     # print(name_array)
     # print(array)
