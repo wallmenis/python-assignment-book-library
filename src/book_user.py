@@ -212,7 +212,9 @@ class User():
         
         for i in self.orders:
             book_ids_to_recommend.append(i)
-                
+        
+        book_ids_to_recommend = list(set(book_ids_to_recommend))
+        
         for j in book_ids_to_recommend:
             for i in self.auther.librarydb.books_df.loc[j]["categories"]:
                 counter[i] += 1
@@ -226,6 +228,8 @@ class User():
         # books_to_recommend = self.auther.librarydb.get_books_by_categories(max_category)
                 
         books_to_recommend = pd.DataFrame(self.auther.librarydb.books_df)
+        
+        print(book_ids_to_recommend)
         
         for j in book_ids_to_recommend:
             books_to_recommend = books_to_recommend.drop(index = j)
@@ -348,28 +352,42 @@ class User():
                     book.print_me()
                     
     def return_book(self):
-        orders = self.auther.librarydb.get_orders_by_user_id(self.ID)
-        print(orders)
-        orders_to_return = bo.print_dataframe( df = orders,
+        if self.orders == []:
+            print("You have no orders to return.")
+            return
+        ordersdf = self.auther.librarydb.get_orders_by_user_id(self.ID)
+        # print(ordersdf)
+        for index, row in ordersdf.iterrows():
+            ordersdf["book_title"] = self.auther.librarydb.books_df.loc[row['book_id']]['title']
+        orders_to_return = bo.print_dataframe( df = ordersdf,
                                             df_name = "books",
-                                            df_fields = [ "book_id","cost"],
+                                            df_fields = [ "book_title","cost"],
                                             df_title = "Please search the order you would like to return",
                                             use_search = True,
-                                            df_search_term = "title",
+                                            df_search_term = "IDs",
                                             interval = 10
                                             )
+        if orders_to_return == []:
+            print("Enter is invalid input.")
+            return
         orders_to_return_int = []
         for i in orders_to_return:
-            orders_to_return_int.append(int(i))
+            if int(i) in list(ordersdf.index):
+                orders_to_return_int.append(int(i))
+            else:
+                print("Ignoring " + i)
+        if orders_to_return_int == []:
+            print("No orders removed")
+            return
+        order_set = set(self.orders)
+        otr_set = set(ordersdf.loc[orders_to_return_int]['book_id'])
+        order_set = order_set - otr_set
+        print(order_set)
+        self.orders = list(order_set)
         for i in orders_to_return_int:
             self.balance = self.balance + self.auther.librarydb.return_book_with_order_id(i)
-            k = 0
-            while k < len(self.orders):
-                if self.orders[k] == i:
-                    self.orders.pop(k)
-                else:
-                    k += 1
             self.auther.userdb.edit_user_in_dataframe(self)
+        print(self.orders)
             
     def remove_books_from_favorites(self):
         real_favorites = []

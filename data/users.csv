@@ -1,2 +1,2 @@
 ID,username,password,address,city,orders,favorites,balance
-1,gamer,gaming!@#1,gaming,balk,"[1, 3, 6]","[1, 5, 6, 7]",10.56000000000001
+1,gamer,gaming!@#1,gaming,balk,[1],"[1, 5, 6, 7]",91.24
