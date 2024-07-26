@@ -1,6 +1,4 @@
 ID,title,author,publisher,categories,cost,shipping_cost,availiability,copies,bookstores
-1,Harry Potter and the Half-Blood Prince (Harry Potter  #6),J.K. Rowling/Mary GrandPré,Scholastic Inc.,['computer-science'],15.85,4.43,True,105,"{'Connecticut Universal Native Transcripts': 12, 'Doctorate Institute Connection Kansas': 97}"
-2,Harry Potter and the Order of the Phoenix (Harry Potter  #5),J.K. Rowling/Mary GrandPré,Scholastic Inc.,"['cooking', 'physics']",27.97,1.69,True,122,"{'Doctorate Institute Connection Kansas': 44, 'Cool Book Bro': 27, 'Connecticut Universal Native Transcripts': 8}"
 3,Harry Potter and the Chamber of Secrets (Harry Potter  #2),J.K. Rowling,Scholastic,"['fantasy', 'sci-fi']",41.4,3.7,True,4,{'Philosophy In Scribes & Signatures': 4}
 4,Harry Potter and the Prisoner of Azkaban (Harry Potter  #3),J.K. Rowling/Mary GrandPré,Scholastic Inc.,"['fantasy', 'adventure']",15.58,3.08,True,52,"{'Scripts Holden In Treasure': 1, 'Connecticut Universal Native Transcripts': 16, 'Philosophy In Scribes & Signatures': 13, 'Books Untravled Through Time': 8}"
 5,Harry Potter Boxed Set  Books 1-5 (Harry Potter  #1-5),J.K. Rowling/Mary GrandPré,Scholastic,['fantasy'],32.55,4.44,True,87,"{'Philosophy In Scribes & Signatures': 8, 'Cool Book Bro': 40, 'Doctorate Institute Connection Kansas': 23, 'Scripts Holden In Treasure': 16}"

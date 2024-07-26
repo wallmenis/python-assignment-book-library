@@ -229,7 +229,7 @@ class User():
                 
         books_to_recommend = pd.DataFrame(self.auther.librarydb.books_df)
         
-        print(book_ids_to_recommend)
+        # print(book_ids_to_recommend)
         
         for j in book_ids_to_recommend:
             books_to_recommend = books_to_recommend.drop(index = j)
@@ -240,8 +240,10 @@ class User():
                 books_to_recommend = books_to_recommend.drop(index = index)
         
         books_to_recommend = books_to_recommend.reset_index()
-                
-        print(f"We recommend trying \"{books_to_recommend.loc[rd.randint(0, books_to_recommend.shape[0])]["title"]}\" out")
+        book_req=books_to_recommend.loc[rd.randint(0, books_to_recommend.shape[0]-1)]
+        book_name = book_req["title"]
+        book_author = book_req["author"]
+        print(f"We recommend trying \"{book_name}\" by \"{book_author}\"")
     
     def check_balance(self):
         print(f"Your balance is {self.balance}$")
@@ -257,24 +259,24 @@ class User():
         print("Please insert the IDs of the books you want to add to favorites (comma separated)")
         inp = bo.list_editor_int(self.favorites, "favorites", False)
         set_inp = set(inp)
-        print("Would you like to add a custom book?[Y/N]")
-        inp = input()
-        if inp == "Y":
-            dict_to_send = {'title' : "",
-            'author' : "",
-            'publisher' : "",
-            'categories' : []}
-            dict_to_send = bo.dict_editor(dict_to_send)
-            self.auther.librarydb.add_custom_book(dict_to_send['title'], dict_to_send['author'], dict_to_send['publisher'], dict_to_send["publisher"], self.ID)
-            fake_books_to_show = self.auther.librarydb.get_custom_book_by_user_id(self.ID)
-            for index, row in fake_books_to_show.iterrows():
-                self.favorites.append(index)
-        print(self.favorites)
+        # print("Would you like to add a custom book?[Y/N]")
+        # inp = input()
+        # if inp == "Y":
+        #     dict_to_send = {'title' : "",
+        #     'author' : "",
+        #     'publisher' : "",
+        #     'categories' : []}
+        #     dict_to_send = bo.dict_editor(dict_to_send)
+        #     self.auther.librarydb.add_custom_book(dict_to_send['title'], dict_to_send['author'], dict_to_send['publisher'], dict_to_send["publisher"], self.ID)
+        #     fake_books_to_show = self.auther.librarydb.get_custom_book_by_user_id(self.ID)
+        #     for index, row in fake_books_to_show.iterrows():
+        #         self.favorites.append(index)
+        # print(self.favorites)
         new_favorites_set = set(self.favorites).union(set_inp)
         self.favorites = []
         for i in new_favorites_set:
             self.favorites.append(i)
-        print(self.favorites)
+        # print(self.favorites)
         self.auther.userdb.edit_user_in_dataframe(self)
     
     def modify_account(self):
@@ -454,24 +456,31 @@ class User():
             if not pd.isna(lis):
                 return ast.literal_eval(lis)
             return []
-        self.imported_df['categories'] = self.imported_df['categories'].apply(to_int_list)
-        self.imported_df['bookstores'] = self.imported_df['bookstores'].apply(to_int_list)
+        imported_df['categories'] = imported_df['categories'].apply(to_int_list)
+        imported_df['bookstores'] = imported_df['bookstores'].apply(to_int_list)
         # final_imported_df = imported_df
+        final_book_df = pd.DataFrame(columns=book_tmp.columns)
         for index, row in imported_df.iterrows():
-            if not self.auther.librarydb.check_if_book_real(row['title'], row['author'], row['publisher'], row['categories']):
+            if not self.auther.librarydb.check_if_book_real(row['title'], row['author'], row['publisher']):
                 # final_imported_df = final_imported_df.drop(index = index)
-                self.favorites.append(self.auther.librarydb.add_custom_book(row['title'], row['author'], row['publisher'], row['categories'], self.ID))
+                tmp_title = row["title"]
+                print(f"Book \"{tmp_title}\" not found in database, ignoring...")
+                # self.favorites.append(self.auther.librarydb.add_custom_book(row['title'], row['author'], row['publisher'], row['categories'], self.ID))
             else:
-                book_tmp = book_tmp.loc[book_tmp['title'] == row['title']]
-                book_tmp = book_tmp.loc[book_tmp['author'] == row['author']]
-                book_tmp = book_tmp.loc[book_tmp['publisher'] == row['publisher']]
-                book_tmp = book_tmp.loc[book_tmp['categories'] == row['categories']]
+                book_tmp2 = book_tmp.loc[book_tmp['title'] == row['title']]
+                book_tmp2 = book_tmp2.loc[book_tmp['author'] == row['author']]
+                book_tmp2 = book_tmp2.loc[book_tmp['publisher'] == row['publisher']]
+                final_book_df = pd.concat([final_book_df,book_tmp2])
+                #book_tmp = book_tmp.loc[book_tmp['categories'] == row['categories']]
                 
         fave_set = set(self.favorites)
         
         # for i in list(final_imported_df.index):
         #     fave_set.add(i)
-        for i in list(book_tmp.index):
+        if final_book_df.empty:
+            print("Failed to find the appropriate books in the database")
+            return
+        for i in list(final_book_df.index):
             fave_set.add(i)
         self.favorites = list(fave_set)
         self.auther.userdb.edit_user_in_dataframe(self)
@@ -861,6 +870,7 @@ class Admin():
         final_books = pd.DataFrame(columns=books.columns)
         for i in books_to_del:
             final_books = pd.concat([blm.get_books_by_name_with_df(books, i), final_books])
+        books_to_del_int = []
         if final_books.shape[0] > 1:
             books_to_del = bo.print_dataframe(  df = final_books,
                                                 df_name = "books",
@@ -873,7 +883,7 @@ class Admin():
             if books_to_del == "":
                 print("Invalid Input.")
                 return
-            books_to_del_int = []
+            
             for i in books_to_del:
                 books_to_del_int.append(int(i))
             if not set(final_books.index.values).issuperset(set(books_to_del_int)):
@@ -883,7 +893,14 @@ class Admin():
                     self.auther.librarydb.remove_book_with_ID(i)
         else:
             self.auther.librarydb.remove_book_with_ID(final_books.index.values[0])
-        
+            books_to_del_int.append(int(final_books.index.values[0]))
+            
+        bk2del_st = set(books_to_del_int)
+        for index, row in self.auther.userdb.user_df.iterrows():
+            tmp_set = set(row["orders"]) - bk2del_st
+            self.auther.userdb.user_df.at[index, "orders"] = list(tmp_set)
+            tmp_set = set(row["favorites"]) - bk2del_st
+            self.auther.userdb.user_df.at[index, "favorites"] = list(tmp_set)
         
             
 

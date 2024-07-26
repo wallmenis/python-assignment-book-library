@@ -120,15 +120,13 @@ class LibraryDB():
     def get_custom_book_by_user_id(self,user_id):
         return self.user_books_df.loc[self.user_books_df['user_id'] == user_id]
     
-    def check_if_book_real(self, title, author, publisher, categories):
+    def check_if_book_real(self, title, author, publisher):
         found_real = True
         if self.books_df.loc[self.books_df['title'] == title].empty:
             found_real = False
         if self.books_df.loc[self.books_df['author'] == author].empty:
             found_real = False
         if self.books_df.loc[self.books_df['publisher'] == publisher].empty:
-            found_real = False
-        if self.books_df.loc[self.books_df['categories'] == categories].empty:
             found_real = False
         return found_real
         
@@ -351,6 +349,10 @@ class LibraryDB():
         if not toremove.empty:
             self.reviews_df = self.reviews_df.drop(index = toremove)
             return True
+        toremove = self.orders_df.loc[self.orders_df["book_id"] == ID].index
+        if not toremove.empty:
+            self.return_book_with_order_id(toremove)
+            return True
         return False
         
     def get_books_by_name(self, string):
@@ -401,16 +403,20 @@ class LibraryDB():
         books_to_import = pd.DataFrame(columns=self.books_df.columns)
         try:
             books_to_import = pd.read_csv(csv_path).astype('object')
-            print(books_to_import)
-            return
+            # return
         except OSError:
+            print("Failed to read file")
             return False
         books_to_import = books_to_import.set_index("ID")
         books_to_import['categories'] = books_to_import['categories'].apply(lambda x : ast.literal_eval(x))
         books_to_import['bookstores'] = books_to_import['bookstores'].apply(lambda x : ast.literal_eval(x))
-        if books_to_import.columns == self.books_df.columns:
-            self.books_df = pd.concat([books_to_import, self.books_df])
-            self.books_df = self.books_df.reset_index().drop_duplicates(subset='ID').set_index('ID')
+        print(books_to_import)
+        if books_to_import.columns.all() == self.books_df.columns.all():
+            for index, row in books_to_import.iterrows():
+                if not self.check_if_book_real(row["title"], row["author"], row["publisher"]):
+                    self.books_df.loc[self.books_df.shape[0] + 1] = row
+                    #self.books_df = pd.concat([books_to_import, self.books_df])
+                #self.books_df = self.books_df.reset_index().drop_duplicates(subset='ID').set_index('ID')
             return True
         return False
     
