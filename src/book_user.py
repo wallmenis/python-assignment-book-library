@@ -300,6 +300,10 @@ class User():
     def order_book(self):
         # books = self.auther.librarydb.get_books_no_thought(self.ID, self.favorites)
         books = self.auther.librarydb.get_books_no_thought(self.orders)
+        books = books.loc[books["availiability"] == True]
+        if books.empty:
+            print("No books to order")
+            return
         books_to_order = bo.print_dataframe( df = books,
                                             df_name = "books",
                                             df_fields = ["title", "author", "cost", "shipping_cost"],
@@ -401,7 +405,7 @@ class User():
                 fake_favorites.append(i)
         books_to_show = self.auther.librarydb.books_df.loc[real_favorites]
         # fake_books_to_show = self.auther.librarydb.get_custom_book_by_user_id(self.ID)
-        fake_books_to_show = self.auther.librarydb.user_books_df.loc[fake_favorites]
+        # fake_books_to_show = self.auther.librarydb.user_books_df.loc[fake_favorites]
         fake_books_to_show = fake_books_to_show.drop(labels = 'user_id', axis = 1 )
         books_to_show = pd.concat([books_to_show,fake_books_to_show])
         ids_to_remove = bo.print_dataframe(books_to_show,
@@ -493,9 +497,9 @@ class User():
             if i > 0:
                 real_favorites.append(i)
         books_to_show = self.auther.librarydb.books_df.loc[real_favorites]
-        fake_books_to_show = self.auther.librarydb.get_custom_book_by_user_id(self.ID)
-        fake_books_to_show = fake_books_to_show.drop(labels = 'user_id', axis = 1 )
-        books_to_show = pd.concat([books_to_show,fake_books_to_show])
+        # fake_books_to_show = self.auther.librarydb.get_custom_book_by_user_id(self.ID)
+        # fake_books_to_show = fake_books_to_show.drop(labels = 'user_id', axis = 1 )
+        # books_to_show = pd.concat([books_to_show,fake_books_to_show])
         if self.favorites == []:
             print("No favorite books exist")
             return
@@ -633,28 +637,41 @@ class Admin():
         inp = input()
         if inp == "1":
             # base['categories'] = ['informational']
-            book.categories = ['informational']
+            # book.categories = ['informational']
+            book.categories = []
             print("Add additional categories:")
             categories_ed = ["mathematics", "history", "computer-science", "physics", "cooking", "biography"]
             num = 1
             for i in categories_ed:
                 print(f"({num}) {i}")
                 num = num + 1
-            inp = int(input()) -1
+            inp = input()
+            inp = inp.split(',')
+            inp_int = []
+            for i in inp:
+                inp_int.append( int(i) - 1)
+            #inp = int() -1
             # base['categories'].append(categories_ed[inp])
-            book.categories.append(categories_ed[inp])
+            for i in inp_int:
+                book.categories.append(categories_ed[i])
         else:
             # base['categories'] = ['literature']
-            book.categories = ['literature']
+            # book.categories = ['literature']
+            book.categories = []
             print("Add additional categories:")
             categories_lit = ["fantasy", "adventure", "sci-fi", "mystery", "comic"]
             num = 1
             for i in categories_lit:
                 print(f"({num}) {i}")
                 num = num + 1
-            inp = int(input()) -1
+            inp = input()
+            inp = inp.split(',')
+            inp_int = []
+            for i in inp:
+                inp_int.append(int(i) - 1) 
             # base['categories'].append(categories_lit[inp])
-            book.categories.append(categories_lit[inp])
+            for i in inp_int:
+                book.categories.append(categories_lit[i])
         # base['cost'] = float(input("Enter the cost of the book: "))
         book.cost = float(input("Enter the cost of the book: "))
         # base['shipping_cost'] = float(input("Enter the shipping cost of the book: "))
@@ -715,23 +732,24 @@ class Admin():
             book = self.auther.librarydb.get_book_at_index(book_to_edit)
             print("You are now editing the below book.")
             book.print_me()
-            
-            book = blm.Book()
-            print("Please enter bookstore to be added:")
+            print("Please enter bookstore to be added (leave empty to not edit):")
             num = 1
             for i in self.bookstores:
                 print(f"{num} : {i}")
                 num = num + 1
             inp = input()
-            inp = inp.split(',')
-            bk=[]
-            vals = []
-            for i in inp:
-                print(self.bookstores)
-                bk.append(self.bookstores[int(i)-1])
-                vals.append(0)
-            dk = dict(zip(bk,vals))
-            print("Please edit the values for the book to be inserted")
+            if inp != "":
+                inp = inp.split(',')
+                bk=[]
+                vals = []
+                for i in inp:
+                    print(self.bookstores)
+                    bk.append(self.bookstores[int(i)-1])
+                    vals.append(0)
+                dk = dict(zip(bk,vals))
+            else:
+                dk = {}
+            # print("Please edit the values for the book to be inserted")
             # base = {'ID' : -1,
             # 'title' : "Test",
             # 'author' : "Test",
@@ -744,52 +762,87 @@ class Admin():
             # 'bookstores' : dk}
             # base = bo.dict_editor_custom(base, ['title', 'authors', 'publisher', 'categories', 'cost', 'shipping_cost', 'availiability', 'copies'])
             # base['title'] = input("Enter the title: ")
-            book.title = input("Enter the title: ")
+            inp = input("Enter the title: ")
+            if inp != "":
+                book.title = inp
             # base['author'] = input("Enter the name of the author: ")
-            book.author = input("Enter the name of the author: ")
+            inp = input("Enter the name of the author: ")
+            if inp != "":
+                book.author = inp
             # base['publisher'] = input("Enter the name of the publisher: ")
-            book.publisher = input("Enter the name of the publisher: ")
+            inp = input("Enter the name of the publisher: ")
+            if inp != "":
+                book.publisher = inp
             print("Is this book informational or literature?(1/2)")
             inp = input()
             if inp == "1":
                 # base['categories'] = ['informational']
-                book.categories = ['informational']
+                # book.categories = ['informational']
                 print("Add additional categories:")
                 categories_ed = ["mathematics", "history", "computer-science", "physics", "cooking", "biography"]
+                categories_ed = list(set(categories_ed) - set(book.categories))
                 num = 1
                 for i in categories_ed:
                     print(f"({num}) {i}")
                     num = num + 1
-                inp = int(input()) -1
+                inp = input()
+                if inp == "":
+                    inp = []
+                else:
+                    inp = inp.split(',')
+                inp_int = []
+                for i in inp:
+                    inp_int.append(int(i) - 1) 
                 # base['categories'].append(categories_ed[inp])
-                book.categories.append(categories_ed[inp])
+                for i in inp_int:
+                    book.categories.append(categories_ed[i])
             else:
                 # base['categories'] = ['literature']
-                book.categories = ['literature']
+                # book.categories = ['literature']
+                # print(book.categories)
                 print("Add additional categories:")
                 categories_lit = ["fantasy", "adventure", "sci-fi", "mystery", "comic"]
+                categories_lit = list(set(categories_lit) - set(book.categories))
                 num = 1
                 for i in categories_lit:
                     print(f"({num}) {i}")
                     num = num + 1
-                inp = int(input()) -1
+                inp = input()
+                if inp == "":
+                    inp = []
+                else:
+                    inp = inp.split(',')
+                inp_int = []
+                for i in inp:
+                    inp_int.append(int(i) - 1)
                 # base['categories'].append(categories_lit[inp])
-                book.categories.append(categories_lit[inp])
+                for i in inp_int:
+                    book.categories.append(categories_lit[i])
             # base['cost'] = float(input("Enter the cost of the book: "))
-            book.cost = float(input("Enter the cost of the book: "))
+            inp = input("Enter the cost of the book: ")
+            if inp != "":
+                book.cost = float(inp)
             # base['shipping_cost'] = float(input("Enter the shipping cost of the book: "))
-            book.shipping_cost = float(input("Enter the shipping cost of the book: "))
+            inp = input("Enter the shipping cost of the book: ")
+            if inp != "":
+                book.shipping_cost = float(inp)
             inp = input("Is this book availiable?[Y/n]:")
             if inp == "Y":
                 # base['availiability'] = True
                 book.availiability = True
-            else:
+            elif inp != "":
                 # base['availiability'] = False
                 book.availiability = False
             copies_per_bks = {}
+            if dk == {}:
+                dk = self.bookstores
             for i in dk:
                 # base['bookstores'][i]=input(f"How many copies are in {i}? : ")
-                copies_per_bks[i]=int(input(f"How many copies are in {i}? : ") )
+                inp = input(f"How many copies are in {i}?  (leave empty for no edit): ") 
+                if inp == "":
+                    copies_per_bks[i] = book.bookstores[i]
+                else:
+                    copies_per_bks[i]=int(inp)
             book.bookstores = copies_per_bks
                 # dc = bo.dict_editor( self.auther.librarydb.get_book_as_dict(book.ID) )
                 # dc["ID"] = book.ID
@@ -805,9 +858,18 @@ class Admin():
         inp = input()
         if inp == "Y":
             print("Please specify the bookstores (comma separated)")
+            bks = self.auther.librarydb.get_all_bookstores()
+            for i in range(0,len(bks)-1):
+                print(f"{i} : {bks[i]}")
             inp = input()
             inp = inp.split(',')
-            dict_books = self.auther.librarydb.get_books_by_bookstores(inp)
+            inp_int = []
+            for i in inp:
+                inp_int.append(int(i))
+            bkstores = []
+            for i in inp_int:
+                bkstores.append(bks[i])
+            dict_books = self.auther.librarydb.get_books_by_bookstores(bkstores)
             books = pd.concat(list(dict_books.values()), axis = 0)
         books_to_chk = bo.print_dataframe(  df = books,
                                             df_name = "books",
@@ -853,6 +915,8 @@ class Admin():
         books_to_show['availiability'] = books_to_show['availiability'].apply(trigg)
         print(books_to_show[['title','availiability']])
         # bo.print_dataframe(books_to_show, df_name = "books", df_fields = ['title','availiability'])
+        
+        
 
     def delete_books(self):
         books = self.auther.get_avail_books_for_del()
@@ -902,7 +966,8 @@ class Admin():
             tmp_set = set(row["favorites"]) - bk2del_st
             self.auther.userdb.user_df.at[index, "favorites"] = list(tmp_set)
         
-            
+        # DONT FORGET TO CHECK BOOK/REVIEW DEL AND ALSO THE REST OF ADMIN.
+        # CHECK IF ANYTHING MISSING. ALSO CHECK IF YOU CAN BUY MULTIPLES OF THE SAME BOOK
 
     def export_books_df(self):
         print("Please insert the path to export.")

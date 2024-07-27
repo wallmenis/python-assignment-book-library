@@ -26,17 +26,17 @@ class LibraryDB():
                             "user_id" : int,
                             "bookstore" : str,
                             "cost" : int}
-        user_books_df_types = {  'ID' : int,
-                            'title' : str,
-                            'author' : str,
-                            'publisher' : str,
-                            'categories' : np.ndarray,
-                            'cost' : float,
-                            'shipping_cost' : float,
-                            'availiability' : bool,
-                            'copies' : int,
-                            'bookstores' : dict,
-                            'user_id' : int}
+        # user_books_df_types = {  'ID' : int,
+        #                     'title' : str,
+        #                     'author' : str,
+        #                     'publisher' : str,
+        #                     'categories' : np.ndarray,
+        #                     'cost' : float,
+        #                     'shipping_cost' : float,
+        #                     'availiability' : bool,
+        #                     'copies' : int,
+        #                     'bookstores' : dict,
+        #                     'user_id' : int}
         
         self.books_df = pd.DataFrame({'ID' : [],
                                      'title' : [],
@@ -59,17 +59,17 @@ class LibraryDB():
                                      'user_id' : [],
                                      'bookstore' : [],
                                      'cost' : []}).astype('object')
-        self.user_books_df = pd.DataFrame({'ID' : [],
-                                     'title' : [],
-                                     'author' : [],
-                                     'publisher' : [],
-                                     'categories' : [],
-                                     'cost' : [],
-                                     'shipping_cost' : [],
-                                     'availiability' : [],
-                                     'copies' : [],
-                                     'bookstores' : [],
-                                     'user_id' : []}).astype('object')
+        # self.user_books_df = pd.DataFrame({'ID' : [],
+        #                              'title' : [],
+        #                              'author' : [],
+        #                              'publisher' : [],
+        #                              'categories' : [],
+        #                              'cost' : [],
+        #                              'shipping_cost' : [],
+        #                              'availiability' : [],
+        #                              'copies' : [],
+        #                              'bookstores' : [],
+        #                              'user_id' : []}).astype('object')
         try:
             self.books_df = pd.read_csv("../data/books.csv").astype('object')
         except OSError:
@@ -82,15 +82,15 @@ class LibraryDB():
             self.orders_df = pd.read_csv("../data/orders.csv").astype('object')
         except OSError:
             print("Failed to find/read orders.csv file. Continuing with empty DataFrame")
-        try:
-            self.user_books_df = pd.read_csv("../data/user_books.csv").astype('object')
-        except OSError:
-            print("Failed to find/read user_books.csv file. Continuing with empty DataFrame")
+        # try:
+        #     self.user_books_df = pd.read_csv("../data/user_books.csv").astype('object')
+        # except OSError:
+        #     print("Failed to find/read user_books.csv file. Continuing with empty DataFrame")
         
         self.books_df = self.books_df.set_index("ID")
         self.reviews_df = self.reviews_df.set_index("ID")
         self.orders_df = self.orders_df.set_index("ID")
-        self.user_books_df = self.user_books_df.set_index("ID")
+        # self.user_books_df = self.user_books_df.set_index("ID")
         
         # def to_str_list(lis):
         #     result = []
@@ -112,13 +112,13 @@ class LibraryDB():
         self.books_df['categories'] = self.books_df['categories'].apply(to_int_list)
         self.books_df['bookstores'] = self.books_df['bookstores'].apply(to_int_list)
         
-        self.user_books_df['categories'] = self.user_books_df['categories'].apply(to_int_list)
-        self.user_books_df['bookstores'] = self.user_books_df['bookstores'].apply(to_int_list)
+        #self.user_books_df['categories'] = self.user_books_df['categories'].apply(to_int_list)
+        #self.user_books_df['bookstores'] = self.user_books_df['bookstores'].apply(to_int_list)
 
         #print(self.books_df['categories'])
     
-    def get_custom_book_by_user_id(self,user_id):
-        return self.user_books_df.loc[self.user_books_df['user_id'] == user_id]
+    # def get_custom_book_by_user_id(self,user_id):
+    #     return self.user_books_df.loc[self.user_books_df['user_id'] == user_id]
     
     def check_if_book_real(self, title, author, publisher):
         found_real = True
@@ -130,24 +130,24 @@ class LibraryDB():
             found_real = False
         return found_real
         
-    def add_custom_book(self, title, author, publisher, categories, user_id):
-        if not self.check_if_book_real(title, author, publisher, categories):
-            if self.user_books_df.empty:
-                tmp_id = -1
-            else:
-                tmp_id = self.user_books_df.index[self.user_books_df.shape[0]-1] - 1
-            self.user_books_df.loc[tmp_id] = {'title' : title,
-                                            'author' : author,
-                                            'publisher' : publisher,
-                                            'categories' : categories,
-                                            'cost' : 0,
-                                            'shipping_cost' : 0,
-                                            'availiability' : False,
-                                            'copies' : 0,
-                                            'bookstores' : dict(),
-                                            'user_id' : user_id
-                                            }
-            return tmp_id
+    # def add_custom_book(self, title, author, publisher, categories, user_id):
+    #     if not self.check_if_book_real(title, author, publisher, categories):
+    #         if self.user_books_df.empty:
+    #             tmp_id = -1
+    #         else:
+    #             tmp_id = self.user_books_df.index[self.user_books_df.shape[0]-1] - 1
+    #         self.user_books_df.loc[tmp_id] = {'title' : title,
+    #                                         'author' : author,
+    #                                         'publisher' : publisher,
+    #                                         'categories' : categories,
+    #                                         'cost' : 0,
+    #                                         'shipping_cost' : 0,
+    #                                         'availiability' : False,
+    #                                         'copies' : 0,
+    #                                         'bookstores' : dict(),
+    #                                         'user_id' : user_id
+    #                                         }
+    #         return tmp_id
 
     def get_book_at_index(self, index):
         return Book(
@@ -187,8 +187,14 @@ class LibraryDB():
         cost = self.orders_df.loc[index]['cost']
         bookstore = self.orders_df.loc[index]['bookstore']
         book_id = self.orders_df.loc[index]['book_id']
+        user_id = self.orders_df.loc[index]['user_id']
         self.books_df.loc[book_id]['bookstores'][bookstore] = self.books_df.loc[book_id]['bookstores'][bookstore] + 1
         self.orders_df = self.orders_df.drop(index = index)
+        tmp_rev_df = self.reviews_df
+        tmp_rev_df = tmp_rev_df.loc[tmp_rev_df["user_id"] == user_id]
+        tmp_rev_df = tmp_rev_df.loc[tmp_rev_df["book_id"] == book_id]
+        for i in list(tmp_rev_df.index):
+            self.remove_review_with_ID(i)
         return cost
     
     def get_books_no_thought(self, orders):
@@ -341,9 +347,9 @@ class LibraryDB():
         return self.get_book_reviews_by_user(user)
     
     def remove_book_with_ID(self, ID):
-        if ID < 0:
-            self.user_books_df = self.user_books_df.drop(index = ID)
-            return True
+        # if ID < 0:
+        #     self.user_books_df = self.user_books_df.drop(index = ID)
+        #     return True
         self.books_df = self.books_df.drop(index = ID)
         toremove = self.reviews_df.loc[self.reviews_df["book_id"] == ID].index
         if not toremove.empty:
@@ -383,15 +389,15 @@ class LibraryDB():
     
     def save_to_path(self,path):
         self.books_df.to_csv(path + "/books.csv")
-        self.user_books_df.to_csv(path + "/user_books.csv")
+        # self.user_books_df.to_csv(path + "/user_books.csv")
         self.reviews_df.to_csv(path + "/reviews.csv")
         self.orders_df.to_csv(path + "/orders.csv")
     
     def save_books_csv(self):
         self.books_df.to_csv("../data/books.csv")
     
-    def save_user_books_csv(self):
-        self.user_books_df.to_csv("../data/user_books.csv")
+    # def save_user_books_csv(self):
+    #     self.user_books_df.to_csv("../data/user_books.csv")
     
     def save_reviews_csv(self):
         self.reviews_df.to_csv("../data/reviews.csv")
@@ -410,11 +416,17 @@ class LibraryDB():
         books_to_import = books_to_import.set_index("ID")
         books_to_import['categories'] = books_to_import['categories'].apply(lambda x : ast.literal_eval(x))
         books_to_import['bookstores'] = books_to_import['bookstores'].apply(lambda x : ast.literal_eval(x))
-        print(books_to_import)
+        #print(books_to_import)
+        #print(self.books_df.tail(1).index)
+        rows = list(self.books_df.tail(1).index)[0] + 1
         if books_to_import.columns.all() == self.books_df.columns.all():
             for index, row in books_to_import.iterrows():
                 if not self.check_if_book_real(row["title"], row["author"], row["publisher"]):
-                    self.books_df.loc[self.books_df.shape[0] + 1] = row
+                    self.books_df.loc[rows] = row
+                    print("Adding book " + row["title"] + " at " + str(rows))
+                    rows = rows + 1
+                else:
+                    print("Didn't add book " + row["title"])
                     #self.books_df = pd.concat([books_to_import, self.books_df])
                 #self.books_df = self.books_df.reset_index().drop_duplicates(subset='ID').set_index('ID')
             return True

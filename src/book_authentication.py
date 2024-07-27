@@ -124,7 +124,7 @@ class Authenticator():
         self.librarydb.save_books_csv()
         self.librarydb.save_orders_csv()
         self.librarydb.save_reviews_csv()
-        self.librarydb.save_user_books_csv()
+        # self.librarydb.save_user_books_csv()
 
     def show_menu(self):
         print(f"Logged in as {self.currentUser.username}")
