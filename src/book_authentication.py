@@ -113,8 +113,11 @@ class Authenticator():
         
     
     def get_avail_books_for_del(self):
-        bk_per_bks = self.librarydb.get_books_by_bookstores(self.currentUser.bookstores)
-        return pd.concat(list(bk_per_bks.values()))
+        # bk_per_bks = self.librarydb.get_books_by_bookstores(self.currentUser.bookstores)
+        # return pd.concat(list(bk_per_bks.values()))
+        # print(self.currentUser.bookstores)
+        # return self.librarydb.get_books_by_bookstores(self.currentUser.bookstores)
+        return self.librarydb.get_books_by_bookstores_exclusive(self.currentUser.bookstores)
     
     def order_book(self, index, bookstore):
         self.librarydb.order_book_with_index_from_bookstore(index,bookstore,self.currentUser.ID)

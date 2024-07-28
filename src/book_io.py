@@ -99,9 +99,10 @@ def dict_editor(dictionary):
 
 
 def dict_editor_custom(dictionary, fields):
-    ndictionary = dictionary
+    # ndictionary = dictionary.copy()
     inp="Y"
     while inp == "Y":
+        ndictionary = dictionary.copy()
         for i in fields:
             print(f"Now editing {i}. Current value \"{ndictionary[i]}\" Press enter to not alter.")
             if type(ndictionary[i]) == dict:

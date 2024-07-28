@@ -256,9 +256,26 @@ class User():
             self.auther.userdb.edit_user_in_dataframe(self)
 
     def add_books_to_favorites(self):
-        print("Please insert the IDs of the books you want to add to favorites (comma separated)")
-        inp = bo.list_editor_int(self.favorites, "favorites", False)
-        set_inp = set(inp)
+        tmp_books_df = self.auther.librarydb.books_df
+        for i in self.favorites:
+            tmp_books_df  = tmp_books_df.drop(index = i)
+        
+        inp = bo.print_dataframe(df = tmp_books_df,
+                                 df_fields=["title", "author"],
+                                 df_title="Please search for a book by ID below.",
+                                 use_search=True)
+        if inp == "":
+            print("Entered no input.")
+            return
+        inp_int = []
+        for i in inp:
+            inp_int.append(int(i))
+        set_inp = set(inp_int)
+        
+        # print("Please insert the IDs of the books you want to add to favorites (comma separated)")
+        # inp = bo.list_editor_int(self.favorites, "favorites", False)
+        # set_inp = set(inp)
+        
         # print("Would you like to add a custom book?[Y/N]")
         # inp = input()
         # if inp == "Y":
@@ -288,6 +305,10 @@ class User():
         "city":self.city,
         "orders":self.orders,
         "favorites":self.favorites}, ["username", "address","city"])
+        tmp_userdf = self.auther.userdb.user_df
+        if not tmp_userdf.loc[tmp_userdf["username"] == dictionary["username"]].empty and dictionary["username"] != self.username:
+            print("You tried to input an already existing name. Please try again from the start.")
+            return
         self.username = dictionary["username"]
         self.address = dictionary["address"]
         self.city = dictionary["city"]
@@ -406,8 +427,8 @@ class User():
         books_to_show = self.auther.librarydb.books_df.loc[real_favorites]
         # fake_books_to_show = self.auther.librarydb.get_custom_book_by_user_id(self.ID)
         # fake_books_to_show = self.auther.librarydb.user_books_df.loc[fake_favorites]
-        fake_books_to_show = fake_books_to_show.drop(labels = 'user_id', axis = 1 )
-        books_to_show = pd.concat([books_to_show,fake_books_to_show])
+        # fake_books_to_show = fake_books_to_show.drop(labels = 'user_id', axis = 1 )
+        # books_to_show = pd.concat([books_to_show,fake_books_to_show])
         ids_to_remove = bo.print_dataframe(books_to_show,
                            df_name = "books",
                            df_fields = ['title', 'author'],
@@ -430,15 +451,21 @@ class User():
         if self.orders == []:
             print("Orders empty, you can't write a review.")
             return
-        orders = self.auther.librarydb.get_orders_by_user_id(self.ID)
+        # orders = self.auther.librarydb.get_orders_by_user_id(self.ID)
         print("The ordered books:")
-        ordered_books = self.auther.librarydb.books_df.loc[orders['book_id']]
+        ordered_books = self.auther.librarydb.books_df.loc[self.orders]
         print(ordered_books['title'])
-        print("Please type the ID for the review")
+        print("Please type the ID for the book to write the review")
         inp = input()
+        if inp == "":
+            print("Cancelling review writing")
+            return
         inp = int(inp)
         print("Please rate from 1-10")
         rating = input()
+        if rating == "":
+            print("Cancelling review writing")
+            return
         rating = int(rating)
         if rating < 1 or rating > 10:
             print("Invalid range")
@@ -533,7 +560,12 @@ class User():
             print("No books found availiable from the selected ones.")
         else:
             print("Below is the availiability and price for the selected books.")
-            print(books_to_show.loc[book_outp_int][['title', 'cost', 'availiability']])
+            for index, row in books_to_show.loc[book_outp_int].iterrows():
+                bk_title = row["title"]
+                bk_cost = row["cost"]
+                bk_avail = row["availiability"]
+                print("Book " + bk_title + " " + bk_avail + " currently. Has cost " + bk_cost)
+            # print(books_to_show.loc[book_outp_int][['title', 'cost', 'availiability']])
     
     def export_as_list(self):
         return [ self.ID,
@@ -707,7 +739,7 @@ class Admin():
                                             df_search_term = "title",
                                             interval = 10
                                             )
-        if books_to_edit == []:
+        if books_to_edit == "":
             return
         final_books = pd.DataFrame(columns=books.columns)
         for i in books_to_edit:
@@ -723,7 +755,7 @@ class Admin():
                                                 interval = 10,
                                                 multiple = False
                                                 )
-            if books_to_edit == []:
+            if book_to_edit == "":
                 return
             book_to_edit = int(book_to_edit)
         if not set(final_books.index.values).issuperset(set([book_to_edit])):
@@ -869,11 +901,13 @@ class Admin():
             bkstores = []
             for i in inp_int:
                 bkstores.append(bks[i])
-            dict_books = self.auther.librarydb.get_books_by_bookstores(bkstores)
-            books = pd.concat(list(dict_books.values()), axis = 0)
+            # dict_books = self.auther.librarydb.get_books_by_bookstores(bkstores)
+            # books = pd.concat(list(dict_books.values()), axis = 0)
+            books = self.auther.librarydb.get_books_by_bookstores(bkstores)
         books_to_chk = bo.print_dataframe(  df = books,
                                             df_name = "books",
                                             df_fields = ["title", "author"],
+                                            #df_fields = ["title", "bookstores"],
                                             df_title = "Please search the books you would like to check the availiability for.",
                                             use_search = True,
                                             df_search_term = "title",
@@ -906,14 +940,16 @@ class Admin():
                 # for i in books_to_chk_int:
                 #     books_to_show = pd.concat([final_books.loc[i], books_to_show])
         else:
-            books_to_show = final_books.loc[int(i)].copy()
+            books_to_show = final_books.loc[int(i)]
         def trigg(boolean):
             if boolean:
                 return "Is Availiable"
             else:
                 return "Is not Availiable"
         books_to_show['availiability'] = books_to_show['availiability'].apply(trigg)
-        print(books_to_show[['title','availiability']])
+        for index, row in books_to_show.iterrows():
+            print("Book " + row['title'] + " " + row['availiability'])
+        # print(books_to_show[['title','availiability']])
         # bo.print_dataframe(books_to_show, df_name = "books", df_fields = ['title','availiability'])
         
         
@@ -952,12 +988,15 @@ class Admin():
                 books_to_del_int.append(int(i))
             if not set(final_books.index.values).issuperset(set(books_to_del_int)):
                 print("Invalid index. Please try again.")
-            else:
-                for i in books_to_del_int:
-                    self.auther.librarydb.remove_book_with_ID(i)
+            # else:
+            #     for i in books_to_del_int:
+            #         self.auther.librarydb.return_book_with_order_id
+            #         self.auther.librarydb.remove_book_with_ID(i)
         else:
-            self.auther.librarydb.remove_book_with_ID(final_books.index.values[0])
+            #self.auther.librarydb.remove_book_with_ID(final_books.index.values[0])
             books_to_del_int.append(int(final_books.index.values[0]))
+        
+        
             
         bk2del_st = set(books_to_del_int)
         for index, row in self.auther.userdb.user_df.iterrows():
@@ -965,9 +1004,15 @@ class Admin():
             self.auther.userdb.user_df.at[index, "orders"] = list(tmp_set)
             tmp_set = set(row["favorites"]) - bk2del_st
             self.auther.userdb.user_df.at[index, "favorites"] = list(tmp_set)
+            
+        for i in books_to_del_int:
+            tmp_ord = self.auther.librarydb.orders_df
+            tmp_ord = tmp_ord.loc[tmp_ord["book_id"] == i]
+            for index, row in tmp_ord.iterrows():
+                cost , uid = self.auther.librarydb.return_book_with_order_id_return_user_id(index)
+                self.auther.userdb.user_df.at[uid , "balance"] = self.auther.userdb.user_df.at[uid, "balance"] + cost
+            self.auther.librarydb.remove_book_with_ID(i)
         
-        # DONT FORGET TO CHECK BOOK/REVIEW DEL AND ALSO THE REST OF ADMIN.
-        # CHECK IF ANYTHING MISSING. ALSO CHECK IF YOU CAN BUY MULTIPLES OF THE SAME BOOK
 
     def export_books_df(self):
         print("Please insert the path to export.")
@@ -1050,6 +1095,7 @@ class Admin():
                                             interval = 10,
                                             multiple = False
                                             )
+        users_to_del_int = []
         if not user_to_del == "":
             final_users = get_users_by_name_with_df(users, user_to_del)
             if final_users.shape[0] > 1:
@@ -1061,16 +1107,28 @@ class Admin():
                                                     df_search_term = "IDs",
                                                     interval = 10
                                                     )
-                users_to_del_int = []
+                
                 for i in user_to_del:
                     users_to_del_int.append(int(i))
                 if not set(final_users.index.values).issuperset(set(users_to_del_int)):
                     print("Invalid index. Please try again.")
-                else:
-                    for i in users_to_del_int:
-                        self.auther.userdb.remove_user_from_dataframe_ID(i)
+                # else:
+                #     for i in users_to_del_int:
+                #         self.auther.userdb.remove_user_from_dataframe_ID(i)
             else:
-                self.auther.userdb.remove_user_from_dataframe_ID(final_users.index.values[0])
+                # self.auther.userdb.remove_user_from_dataframe_ID(final_users.index.values[0])
+                users_to_del_int.append(final_users.index.values[0])
+        else:
+            print("Empty skipping.")
+            return
+        
+        for i in users_to_del_int:
+            orders = list(self.auther.librarydb.get_orders_by_user_id(i).index)
+            for j in orders:
+                self.auther.librarydb.return_book_with_order_id(j)
+            self.auther.userdb.remove_user_from_dataframe_ID(i)
+        
+        
 
     def check_book_cost(self):
         books_to_show = self.auther.librarydb.books_df

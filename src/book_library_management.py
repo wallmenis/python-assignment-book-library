@@ -197,6 +197,20 @@ class LibraryDB():
             self.remove_review_with_ID(i)
         return cost
     
+    def return_book_with_order_id_return_user_id(self, index):
+        cost = self.orders_df.loc[index]['cost']
+        bookstore = self.orders_df.loc[index]['bookstore']
+        book_id = self.orders_df.loc[index]['book_id']
+        user_id = self.orders_df.loc[index]['user_id']
+        self.books_df.loc[book_id]['bookstores'][bookstore] = self.books_df.loc[book_id]['bookstores'][bookstore] + 1
+        self.orders_df = self.orders_df.drop(index = index)
+        tmp_rev_df = self.reviews_df
+        tmp_rev_df = tmp_rev_df.loc[tmp_rev_df["user_id"] == user_id]
+        tmp_rev_df = tmp_rev_df.loc[tmp_rev_df["book_id"] == book_id]
+        for i in list(tmp_rev_df.index):
+            self.remove_review_with_ID(i)
+        return cost, user_id
+    
     def get_books_no_thought(self, orders):
         final_books = pd.DataFrame(self.books_df)
         # orders = self.get_orders_by_user_id(user_id)
@@ -261,14 +275,21 @@ class LibraryDB():
     
     def get_num_books_by_bookstores(self):
         all_bookstores = self.get_all_bookstores()
-        num_of_books = {}
-        num_of_books_with_copies = {bks: 0 for bks in all_bookstores}
-        bk_by_bks = self.get_books_by_bookstores(all_bookstores)
+        num_of_books = dict(zip(all_bookstores, np.zeros(len(all_bookstores))))
+        num_of_books_with_copies = dict(zip(all_bookstores, np.zeros(len(all_bookstores))))
         for i in all_bookstores:
-            bk = bk_by_bks[i]
-            num_of_books[i] = bk.shape[0]
-            for j, row in bk.iterrows():
-                num_of_books_with_copies[i] = row['bookstores'].get(i, 0)
+            bk_by_bks = self.get_books_by_bookstores([i])
+            num_of_books[i] = bk_by_bks.shape[0]
+            for index, row in bk_by_bks.iterrows():
+                bks_df = row['bookstores']
+                num_of_books_with_copies[i] = num_of_books_with_copies[i] + bks_df[i]
+        # num_of_books_with_copies = {bks: 0 for bks in all_bookstores}
+        # bk_by_bks = self.get_books_by_bookstores(all_bookstores)
+        # for i in all_bookstores:
+        #     bk = bk_by_bks[i]
+        #     num_of_books[i] = bk.shape[0]
+        #     for j, row in bk.iterrows():
+        #         num_of_books_with_copies[i] = row['bookstores'].get(i, 0)
         return num_of_books, num_of_books_with_copies
     
     def get_num_books_by_publisher(self):
@@ -350,16 +371,23 @@ class LibraryDB():
         # if ID < 0:
         #     self.user_books_df = self.user_books_df.drop(index = ID)
         #     return True
-        self.books_df = self.books_df.drop(index = ID)
-        toremove = self.reviews_df.loc[self.reviews_df["book_id"] == ID].index
-        if not toremove.empty:
-            self.reviews_df = self.reviews_df.drop(index = toremove)
-            return True
-        toremove = self.orders_df.loc[self.orders_df["book_id"] == ID].index
-        if not toremove.empty:
-            self.return_book_with_order_id(toremove)
+        
+        # toremove = self.reviews_df.loc[self.reviews_df["book_id"] == ID].index
+        # if not toremove.empty:
+        #     for i in 
+        #     self.reviews_df = self.reviews_df.drop(index = toremove)
+        #     return True
+        if not self.books_df.loc[ID].empty:
+            self.books_df = self.books_df.drop(index = ID)
             return True
         return False
+#         toremove = self.orders_df.loc[self.orders_df["book_id"] == ID].index
+#         if not toremove.empty:
+#             for i in list(toremove) : 
+#                 self.return_book_with_order_id(i)
+#             
+#             return True
+#         return False
         
     def get_books_by_name(self, string):
         return self.books_df.loc[self.books_df["title"].str.contains(string, case=False)]
@@ -433,17 +461,40 @@ class LibraryDB():
         return False
     
     def get_books_by_bookstores(self, bookstores):
-        st_bookstores = set(bookstores)
-        indices = {bks: [] for bks in st_bookstores}
-        for bks in bookstores:
-            for i, row in self.books_df.iterrows():
-                st_book_bks = set(row["bookstores"].keys())
-                if bks in st_book_bks:
-                    indices[bks].append(i)
-                    
-        result = {}
-        for bks, bks_indices in indices.items():
-            result[bks] = self.books_df.loc[bks_indices]
+        result = pd.DataFrame(columns= self.books_df.columns)
+#         st_bookstores = set(bookstores)
+#         indices = {bks: [] for bks in st_bookstores}
+#         for bks in bookstores:
+#             for i, row in self.books_df.iterrows():
+#                 st_book_bks = set(row["bookstores"].keys())
+#                 if bks in st_book_bks:
+#                     indices[bks].append(i)
+#                     
+#         result = {}
+#         for bks, bks_indices in indices.items():
+#             result[bks] = self.books_df.loc[bks_indices]
+        for index, row in self.books_df.iterrows():
+            row_bks = row["bookstores"]
+            row_bks = list(row_bks.keys())
+            toinclude = False
+            for i in bookstores:
+                if i in row_bks:
+                    toinclude = True
+            if toinclude:
+                result.loc[index] = row
+        return result
+    
+    def get_books_by_bookstores_exclusive(self, bookstores):
+        result = pd.DataFrame(columns= self.books_df.columns)
+        for index, row in self.books_df.iterrows():
+            row_bks = row["bookstores"]
+            row_bks = list(row_bks.keys())
+            toinclude = True
+            for i in row_bks:
+                if not i in bookstores:
+                    toinclude = False
+            if toinclude:
+                result.loc[index] = row
         return result
     
     def export_books_to_csv(self, csv_path):
