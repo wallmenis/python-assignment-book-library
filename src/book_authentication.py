@@ -109,19 +109,21 @@ class Authenticator():
         if self.userdb.admin_df.empty:
             print("No registered admin found. Please register a new admin.")
             self.register_admin()
-        print("Please choose.")
-        print("1. Login")
-        print("2. Register User")
-        print("0. Exit")
-        inp = input()
-        if int(inp) == 1:
-            self.login()
-        elif int(inp) == 2:
-            self.register_user()
-            self.save_all()
-            exit()
-        else:
-            exit()
+        exit_prog = False
+        while not exit_prog:
+            print("Please choose.")
+            print("1. Login")
+            print("2. Register User")
+            print("0. Exit")
+            inp = input()
+            if int(inp) == 1:
+                self.login()
+                exit_prog = True
+            elif int(inp) == 2:
+                self.register_user()
+                self.save_all()
+            else:
+                exit()
         # print("2. Register User")
         
     
