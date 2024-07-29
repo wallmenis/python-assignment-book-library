@@ -53,8 +53,21 @@ class Authenticator():
             print("Please enter username for ADMIN account")
             username = input()
             password = password_register()
-            print("Please enter the bookstores you will be administrating. Type exit to stop adding new ones.")
-            bookstores = bo.input_list()
+            print("Please enter the bookstores you will be administrating.")
+            i = 0
+            bks = self.librarydb.get_all_bookstores()
+            for i in range(0,len(bks)):
+                print(f"{i} {bks[i]}")
+            inp = input()
+            inp = inp.split(',')
+            bookstores=[]
+            if inp == "":
+                exit()
+            int_inp = []
+            for i in inp:
+                int_inp.append(int(i))
+            for i in int_inp:
+                bookstores.append(bks[i])
             print("Is the below data OK? Type YES if it is.")
             print(f"username: {username}")
             print(f"bookstores to administer: {bookstores}")
