@@ -1000,7 +1000,7 @@ class Admin():
             #         self.auther.librarydb.remove_book_with_ID(i)
         else:
             #self.auther.librarydb.remove_book_with_ID(final_books.index.values[0])
-            books_to_del_int.append(int(final_books.index.values[0]))
+            books_to_del_int.append(int(list(final_books.index)[0]))
         
         
             
