@@ -6,8 +6,8 @@ import numpy as np
 def make_bar_graph(dictionary : dict, name_array_title, array_title, plot_title):
     #plt.figure(figsize=(12, 8))
     plt.barh(list(dictionary.keys()), list(dictionary.values()), color='red')
-    plt.xlabel(name_array_title)
-    plt.ylabel(array_title)
+    plt.ylabel(name_array_title)
+    plt.xlabel(array_title)
     plt.title(plot_title)
     plt.grid(True)
     tmp_list = np.array(list(dictionary.values()))

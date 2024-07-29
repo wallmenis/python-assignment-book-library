@@ -174,7 +174,7 @@ class User():
         ids_to_select = bo.print_dataframe(books_to_show,
                            df_name = "books",
                            df_fields = ['title', 'author'],
-                           df_title = "Please select books to view availiability of",
+                           df_title = "Please select books to view availability of",
                            df_search_term="IDs",
                            use_search = True
                            )
@@ -192,7 +192,7 @@ class User():
                 ids_to_select.append(i)
         
         books_to_show = books_to_show.loc[ids_to_select]
-        books_to_show = books_to_show.loc[books_to_show["availiability"] == True]
+        books_to_show = books_to_show.loc[books_to_show["availability"] == True]
         
         print("Below books are availiable")
         print(books_to_show[["title","cost"]])
@@ -321,7 +321,7 @@ class User():
     def order_book(self):
         # books = self.auther.librarydb.get_books_no_thought(self.ID, self.favorites)
         books = self.auther.librarydb.get_books_no_thought(self.orders)
-        books = books.loc[books["availiability"] == True]
+        books = books.loc[books["availability"] == True]
         if books.empty:
             print("No books to order")
             return
@@ -535,16 +535,16 @@ class User():
                 return "Is Availiable"
             else:
                 return "Is not Availiable"
-        books_to_show['availiability'] = books_to_show['availiability'].apply(trigg)
+        books_to_show['availability'] = books_to_show['availability'].apply(trigg)
         def trigg2(number):
             return f"{number}$"
         books_to_show['cost'] = books_to_show['cost'].apply(trigg2)
         book_outp = bo.print_dataframe(books_to_show,
                            df_name = "books",
-                           df_fields = ['title', 'cost', 'availiability'],
+                           df_fields = ['title', 'cost', 'availability'],
                            use_search = True,
                            multiple = True,
-                           df_title = "Favorite books availiability and cost.",
+                           df_title = "Favorite books availability and cost.",
                            df_search_term = "Book IDs"
                            )
         if book_outp == []:
@@ -559,13 +559,13 @@ class User():
         if books_to_show.loc[book_outp_int].empty:
             print("No books found availiable from the selected ones.")
         else:
-            print("Below is the availiability and price for the selected books.")
+            print("Below is the availability and price for the selected books.")
             for index, row in books_to_show.loc[book_outp_int].iterrows():
                 bk_title = row["title"]
                 bk_cost = row["cost"]
-                bk_avail = row["availiability"]
+                bk_avail = row["availability"]
                 print("Book " + bk_title + " " + bk_avail + " currently. Has cost " + bk_cost)
-            # print(books_to_show.loc[book_outp_int][['title', 'cost', 'availiability']])
+            # print(books_to_show.loc[book_outp_int][['title', 'cost', 'availability']])
     
     def export_as_list(self):
         return [ self.ID,
@@ -618,7 +618,7 @@ class Admin():
         anb, annb = self.auther.librarydb.get_num_books_by_bookstores()
         anp, annp = self.auther.librarydb.get_num_books_by_publisher()
         dist = self.auther.librarydb.get_distribution_by_avail_books()
-        distb = self.auther.librarydb.books_df.index.values
+        # distb = self.auther.librarydb.books_df.index.values
         ura,  ucity = self.auther.userdb.get_num_users_by_city()
         
         
@@ -628,7 +628,7 @@ class Admin():
         bo.make_bar_graph(anna, "Authors", "Number of books", "Number of books per author (copies included)")
         bo.make_bar_graph(anp, "Publishers", "Number of books", "Number of books per publisher")
         bo.make_bar_graph(annp, "Publishers", "Number of books", "Number of books per publisher (copies included)")
-        bo.make_bar_graph(dist, "Distribution", "Number of books", "Number of books per bookstore")
+        bo.make_bar_graph(dist, "Distribution", "Number of books", "Cost distribution of availiable books.")
         bo.make_bar_graph(ura, "Cities", "Number of users", "Number of users per city")
     
     def add_book(self):
@@ -655,10 +655,10 @@ class Admin():
         # 'categories' : ["fiction"],
         # 'cost' : 0.0,
         # 'shipping_cost' : 0.0,
-        # 'availiability' : False,
+        # 'availability' : False,
         # 'copies' : 0,
         # 'bookstores' : dk}
-        # base = bo.dict_editor_custom(base, ['title', 'authors', 'publisher', 'categories', 'cost', 'shipping_cost', 'availiability', 'copies'])
+        # base = bo.dict_editor_custom(base, ['title', 'authors', 'publisher', 'categories', 'cost', 'shipping_cost', 'availability', 'copies'])
         # base['title'] = input("Enter the title: ")
         book.title = input("Enter the title: ")
         # base['author'] = input("Enter the name of the author: ")
@@ -705,16 +705,22 @@ class Admin():
             for i in inp_int:
                 book.categories.append(categories_lit[i])
         # base['cost'] = float(input("Enter the cost of the book: "))
-        book.cost = float(input("Enter the cost of the book: "))
+        inp = input("Enter the cost of the book: ")
+        if inp == "":
+            inp = 0.0
+        book.cost = float(inp)
         # base['shipping_cost'] = float(input("Enter the shipping cost of the book: "))
-        book.shipping_cost = float(input("Enter the shipping cost of the book: "))
+        inp = input("Enter the shipping cost of the book: ")
+        if inp == "":
+            inp = 0.0
+        book.shipping_cost = float(inp)
         inp = input("Is this book availiable?[Y/n]:")
         if inp == "Y":
-            # base['availiability'] = True
-            book.availiability = True
+            # base['availability'] = True
+            book.availability = True
         else:
-            # base['availiability'] = False
-            book.availiability = False
+            # base['availability'] = False
+            book.availability = False
         copies_per_bks = {}
         for i in dk:
             # base['bookstores'][i]=input(f"How many copies are in {i}? : ")
@@ -789,10 +795,10 @@ class Admin():
             # 'categories' : ["fiction"],
             # 'cost' : 0.0,
             # 'shipping_cost' : 0.0,
-            # 'availiability' : False,
+            # 'availability' : False,
             # 'copies' : 0,
             # 'bookstores' : dk}
-            # base = bo.dict_editor_custom(base, ['title', 'authors', 'publisher', 'categories', 'cost', 'shipping_cost', 'availiability', 'copies'])
+            # base = bo.dict_editor_custom(base, ['title', 'authors', 'publisher', 'categories', 'cost', 'shipping_cost', 'availability', 'copies'])
             # base['title'] = input("Enter the title: ")
             inp = input("Enter the title: ")
             if inp != "":
@@ -860,11 +866,11 @@ class Admin():
                 book.shipping_cost = float(inp)
             inp = input("Is this book availiable?[Y/n]:")
             if inp == "Y":
-                # base['availiability'] = True
-                book.availiability = True
+                # base['availability'] = True
+                book.availability = True
             elif inp != "":
-                # base['availiability'] = False
-                book.availiability = False
+                # base['availability'] = False
+                book.availability = False
             copies_per_bks = {}
             if dk == {}:
                 dk = self.bookstores
@@ -908,7 +914,7 @@ class Admin():
                                             df_name = "books",
                                             df_fields = ["title", "author"],
                                             #df_fields = ["title", "bookstores"],
-                                            df_title = "Please search the books you would like to check the availiability for.",
+                                            df_title = "Please search the books you would like to check the availability for.",
                                             use_search = True,
                                             df_search_term = "title",
                                             interval = 10
@@ -922,7 +928,7 @@ class Admin():
             books_to_chk = bo.print_dataframe(  df = final_books,
                                                 df_name = "books",
                                                 df_fields = ["title", "author"],
-                                                df_title = "Please search the IDs of the books you would like to check the availiability for.",
+                                                df_title = "Please search the IDs of the books you would like to check the availability for.",
                                                 use_search = True,
                                                 df_search_term = "IDs",
                                                 interval = 10
@@ -946,11 +952,11 @@ class Admin():
                 return "Is Availiable"
             else:
                 return "Is not Availiable"
-        books_to_show['availiability'] = books_to_show['availiability'].apply(trigg)
+        books_to_show['availability'] = books_to_show['availability'].apply(trigg)
         for index, row in books_to_show.iterrows():
-            print("Book " + row['title'] + " " + row['availiability'])
-        # print(books_to_show[['title','availiability']])
-        # bo.print_dataframe(books_to_show, df_name = "books", df_fields = ['title','availiability'])
+            print("Book " + row['title'] + " " + row['availability'])
+        # print(books_to_show[['title','availability']])
+        # bo.print_dataframe(books_to_show, df_name = "books", df_fields = ['title','availability'])
         
         
 
@@ -1131,7 +1137,7 @@ class Admin():
         
 
     def check_book_cost(self):
-        books_to_show = self.auther.librarydb.books_df
+        books_to_show = pd.DataFrame(self.auther.librarydb.books_df)
         books_to_show['total_cost'] = books_to_show['cost'] + books_to_show['shipping_cost']
         def trigg2(number):
             return f"{number}$"

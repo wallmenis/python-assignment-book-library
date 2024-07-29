@@ -12,7 +12,7 @@ class LibraryDB():
                             'categories' : np.ndarray,
                             'cost' : float,
                             'shipping_cost' : float,
-                            'availiability' : bool,
+                            'availability' : bool,
                             'copies' : int,
                             'bookstores' : dict}
         reviews_df_types = {'ID' : int,
@@ -33,7 +33,7 @@ class LibraryDB():
         #                     'categories' : np.ndarray,
         #                     'cost' : float,
         #                     'shipping_cost' : float,
-        #                     'availiability' : bool,
+        #                     'availability' : bool,
         #                     'copies' : int,
         #                     'bookstores' : dict,
         #                     'user_id' : int}
@@ -45,7 +45,7 @@ class LibraryDB():
                                      'categories' : [],
                                      'cost' : [],
                                      'shipping_cost' : [],
-                                     'availiability' : [],
+                                     'availability' : [],
                                      'copies' : [],
                                      'bookstores' : []}).astype('object')
 
@@ -66,7 +66,7 @@ class LibraryDB():
         #                              'categories' : [],
         #                              'cost' : [],
         #                              'shipping_cost' : [],
-        #                              'availiability' : [],
+        #                              'availability' : [],
         #                              'copies' : [],
         #                              'bookstores' : [],
         #                              'user_id' : []}).astype('object')
@@ -142,7 +142,7 @@ class LibraryDB():
     #                                         'categories' : categories,
     #                                         'cost' : 0,
     #                                         'shipping_cost' : 0,
-    #                                         'availiability' : False,
+    #                                         'availability' : False,
     #                                         'copies' : 0,
     #                                         'bookstores' : dict(),
     #                                         'user_id' : user_id
@@ -158,7 +158,7 @@ class LibraryDB():
             categories = self.books_df.loc[index, "categories"],
             cost = self.books_df.loc[index, "cost"],
             shipping_cost = self.books_df.loc[index, "shipping_cost"],
-            availiability = self.books_df.loc[index, "availiability"],
+            availability = self.books_df.loc[index, "availability"],
             copies = self.books_df.loc[index, "copies"],
             bookstores = self.books_df.loc[index, "bookstores"]
             )
@@ -170,7 +170,7 @@ class LibraryDB():
             rez = rez + self.books_df.loc[index]['bookstores'][i]
         self.books_df.at[index, 'copies'] = rez
         if rez <= 0:
-            self.books_df.at[index, 'availiability'] = False
+            self.books_df.at[index, 'availability'] = False
     
     def get_books_by_categories(self,categories):
         categories_st = set(categories)
@@ -225,13 +225,13 @@ class LibraryDB():
         return final_books
     
     def order_book_with_index_from_bookstore(self, index, bookstore, user_id):
-        if self.books_df.loc[index]['bookstores'][bookstore] < 1 or not self.books_df.loc[index]['availiability']:
+        if self.books_df.loc[index]['bookstores'][bookstore] < 1 or not self.books_df.loc[index]['availability']:
             return 0.0
         
         self.books_df.loc[index]['bookstores'][bookstore] = self.books_df.loc[index]['bookstores'][bookstore] - 1
         self.books_df.loc[index,'copies'] = self.books_df.loc[index]['copies'] - 1
         if self.books_df.loc[index]['copies'] < 1:
-            self.books_df.loc[index]['availiability'] = False
+            self.books_df.loc[index]['availability'] = False
         order_dict ={   'book_id' : index ,
                         'user_id' : user_id,
                         'bookstore' : bookstore,
@@ -303,7 +303,7 @@ class LibraryDB():
         return num_of_books, num_of_books_with_copies
     
     def get_distribution_by_avail_books(self):
-        bk = self.books_df.loc[self.books_df['availiability'] == True]
+        bk = self.books_df.loc[self.books_df['availability'] == True]
         result = {}
         for index, row in bk.iterrows():
             result[row["title"]] = row['cost'] + row['shipping_cost']
@@ -332,11 +332,14 @@ class LibraryDB():
         return dict(zip(self.books_df.columns,self.get_book_at_index(index).export_as_list()[1:]))
     
     def add_book(self, book):
-        tmp_book = book
-        tmp_book.ID = self.books_df.index[self.books_df.shape[0]-1] + 1
+        new_id = 0
+        if self.books_df.empty:
+            new_id = 0
+        else:
+            new_id = self.books_df.index[self.books_df.shape[0]-1] + 1
         # self.books_df = pd.concat([pd.DataFrame(book.export_as_list(), columns = self.books_df.columns), self.books_df])
-        self.books_df.loc[tmp_book.ID] = dict(zip(self.books_df.columns,book.export_as_list()[1:]))
-        self.fix_copies(tmp_book.ID)
+        self.books_df.loc[new_id] = dict(zip(self.books_df.columns,book.export_as_list()[1:]))
+        self.fix_copies(new_id)
         
     def add_review(self, review_dict):
         if self.reviews_df.empty:
@@ -513,7 +516,7 @@ class Book():  # The data types of each value of the object are strictly followi
                  categories=["exist"],
                  cost=-1.0,
                  shipping_cost=-1.0,
-                 availiability = False,
+                 availability = False,
                  copies=-1,
                  bookstores={"here" : -1}):
         self.ID = ID
@@ -523,7 +526,7 @@ class Book():  # The data types of each value of the object are strictly followi
         self.categories = categories
         self.cost = cost
         self.shipping_cost = shipping_cost
-        self.availiability = availiability
+        self.availability = availability
         self.copies = copies
         self.bookstores = bookstores
 
@@ -535,7 +538,7 @@ class Book():  # The data types of each value of the object are strictly followi
                 self.categories,
                 self.cost,
                 self.shipping_cost,
-                self.availiability,
+                self.availability,
                 self.copies,
                 self.bookstores]
         
@@ -550,7 +553,7 @@ class Book():  # The data types of each value of the object are strictly followi
         self.categories = dictionary["categories"]
         self.cost = dictionary["cost"]
         self.shipping_cost = dictionary["shipping_cost"]
-        self.availiability = dictionary["availiability"]
+        self.availability = dictionary["availability"]
         self.copies = dictionary["copies"]
         self.bookstores = dictionary["bookstores"]
     
@@ -561,7 +564,7 @@ class Book():  # The data types of each value of the object are strictly followi
         print(f"Author: {self.author}\t\tPublisher: {self.publisher}")
         print(f"Cost: {self.cost}\t\tShipping Cost: {self.shipping_cost}")
         print(f"Total cost: {self.get_total_cost()}")
-        if self.availiability:
+        if self.availability:
             print("Is availiable.")
         else:
             print("Not availiable.")
@@ -570,4 +573,4 @@ class Book():  # The data types of each value of the object are strictly followi
         
     def calculate_cost_avail(self):
         if self.copies < 1:
-            self.availiability = False
+            self.availability = False
