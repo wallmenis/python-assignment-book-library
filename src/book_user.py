@@ -665,6 +665,9 @@ class Admin():
         book.author = input("Enter the name of the author: ")
         # base['publisher'] = input("Enter the name of the publisher: ")
         book.publisher = input("Enter the name of the publisher: ")
+        if self.auther.librarydb.check_if_book_real(book.title, book.author, book.publisher):
+            print("This book already exists. Please try again")
+            return
         print("Is this book informational or literature?(1/2)")
         inp = input()
         if inp == "1":

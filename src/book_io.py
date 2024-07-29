@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 def make_bar_graph(dictionary : dict, name_array_title, array_title, plot_title):
     #plt.figure(figsize=(12, 8))
     plt.barh(list(dictionary.keys()), list(dictionary.values()), color='red')

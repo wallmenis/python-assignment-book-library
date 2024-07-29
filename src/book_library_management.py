@@ -304,9 +304,17 @@ class LibraryDB():
     
     def get_distribution_by_avail_books(self):
         bk = self.books_df.loc[self.books_df['availability'] == True]
+        bk = pd.DataFrame(bk)
         result = {}
+        bk['total_cost'] = bk['cost'] + bk['shipping_cost']
+        bk = bk.sort_values(by = ['total_cost'], axis = 0, kind = "quicksort")
+        # print(bk)
+        # i = 0
+        # while i < bk.shape[0]:
+        #     result[bk.iloc[i]["title"]] = bk.iloc[i]['total_cost']
+        #     i = i + 1
         for index, row in bk.iterrows():
-            result[row["title"]] = row['cost'] + row['shipping_cost']
+            result["(" + str(index) + ") " + row["title"]] = row['total_cost']
         return result
     
     def get_cost_books_by_author(self, author):
