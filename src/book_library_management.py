@@ -314,13 +314,42 @@ class LibraryDB():
         result = {}
         bk['total_cost'] = bk['cost'] + bk['shipping_cost']
         bk = bk.sort_values(by = ['total_cost'], axis = 0, kind = "quicksort")
+        max_price = bk.iloc[-1]['total_cost']
+        print(max_price)
         # print(bk)
         # i = 0
         # while i < bk.shape[0]:
         #     result[bk.iloc[i]["title"]] = bk.iloc[i]['total_cost']
         #     i = i + 1
-        for index, row in bk.iterrows():
-            result["(" + str(index) + ") " + row["title"]] = row['total_cost']
+        # for index, row in bk.iterrows():
+        #     result["(" + str(index) + ") " + row["title"]] = row['total_cost']
+        
+        rg_input=5
+        n_ranges = 0
+        ranges=[0]
+        i = 0
+        while i < rg_input - 1:
+            n_ranges = np.round(max_price/rg_input + n_ranges, decimals = 2) 
+            ranges.append(n_ranges)
+            i = i + 1
+        ranges.append(np.ceil(max_price))
+        
+        franges=[]
+        i = 0
+        while i < len(ranges) - 1:
+            franges.append([ranges[i], ranges[i + 1]])
+            i = i + 1
+        
+        for i in franges:
+            result[str(i[0]) + ".." + str(i[1])] = 0
+        
+        for i in franges:
+            for index, row in bk.iterrows():
+                
+                if i[0] < row["total_cost"] and i[1] >= row["total_cost"] :
+                    print(str(row["total_cost"]) + " " + str(i))
+                    result[str(i[0]) + ".." + str(i[1])] = result[str(i[0]) + ".." + str(i[1])] + 1
+        
         return result
     
     def get_cost_books_by_author(self, author):
