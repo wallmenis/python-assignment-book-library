@@ -103,6 +103,10 @@ class Authenticator():
                 else:
                     data_is_ok = False
                     print("User with that username exists. Please use another username")
+        # pusers = self.userdb.get_user_by_username(username)
+        # luser = pusers.loc[pusers['password'] == password]
+        # us = bu.User()
+        # us.import_from_df(luser)
 
 
     def start_procedure(self):

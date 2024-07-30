@@ -186,7 +186,8 @@ class User():
         
         ids_to_select = []
         for i in ids_to_select_int:
-            if not i in list(books_to_show.index):
+            #if not i in list(books_to_show.index):
+            if not i in books_to_show.index.values:
                 print("Excluding " + i)
             else:
                 ids_to_select.append(i)
@@ -385,7 +386,10 @@ class User():
         ordersdf = self.auther.librarydb.get_orders_by_user_id(self.ID)
         # print(ordersdf)
         for index, row in ordersdf.iterrows():
-            ordersdf["book_title"] = self.auther.librarydb.books_df.loc[row['book_id']]['title']
+            ordersdf.at[index, "book_title"] = self.auther.librarydb.books_df.loc[row['book_id']]['title']
+        #for index, row in ordersdf.iterrows():
+        #print(ordersdf['book_id'])
+        #ordersdf["book_title"] = self.auther.librarydb.books_df.loc[ordersdf['book_id']]['title']
         orders_to_return = bo.print_dataframe( df = ordersdf,
                                             df_name = "books",
                                             df_fields = [ "book_title","cost"],
@@ -399,7 +403,8 @@ class User():
             return
         orders_to_return_int = []
         for i in orders_to_return:
-            if int(i) in list(ordersdf.index):
+            # if int(i) in list(ordersdf.index):
+            if int(i) in ordersdf.index.values:
                 orders_to_return_int.append(int(i))
             else:
                 print("Ignoring " + i)
@@ -511,7 +516,8 @@ class User():
         if final_book_df.empty:
             print("Failed to find the appropriate books in the database")
             return
-        for i in list(final_book_df.index):
+        # for i in list(final_book_df.index):
+        for i in final_book_df.index.values:
             fave_set.add(i)
         self.favorites = list(fave_set)
         self.auther.userdb.edit_user_in_dataframe(self)
@@ -552,7 +558,7 @@ class User():
             return
         book_outp_int = []
         for i in book_outp:
-            if not int(i) in list(books_to_show.index):
+            if not int(i) in books_to_show.index.values:
                 print("Excluding id " + i)
             else:
                 book_outp_int.append(int(i))
@@ -1003,7 +1009,7 @@ class Admin():
             #         self.auther.librarydb.remove_book_with_ID(i)
         else:
             #self.auther.librarydb.remove_book_with_ID(final_books.index.values[0])
-            books_to_del_int.append(int(list(final_books.index)[0]))
+            books_to_del_int.append(final_books.index.values[0]) #
         
         
             
