@@ -339,6 +339,7 @@ class User():
         final_books = pd.DataFrame(columns=books.columns)
         for i in books_to_order:
             final_books = pd.concat([blm.get_books_by_name_with_df(books, i), final_books])
+        book_to_order = final_books.index.values[0]
         if final_books.shape[0] > 1:
             book_to_order = bo.print_dataframe(  df = final_books,
                                                 df_name = "book",
@@ -385,13 +386,14 @@ class User():
             return
         ordersdf = self.auther.librarydb.get_orders_by_user_id(self.ID)
         # print(ordersdf)
+        ordersdf = pd.DataFrame(ordersdf)
         for index, row in ordersdf.iterrows():
             ordersdf.at[index, "book_title"] = self.auther.librarydb.books_df.loc[row['book_id']]['title']
         #for index, row in ordersdf.iterrows():
         #print(ordersdf['book_id'])
         #ordersdf["book_title"] = self.auther.librarydb.books_df.loc[ordersdf['book_id']]['title']
         orders_to_return = bo.print_dataframe( df = ordersdf,
-                                            df_name = "books",
+                                            df_name = "orders",
                                             df_fields = [ "book_title","cost"],
                                             df_title = "Please search the order you would like to return",
                                             use_search = True,
@@ -649,7 +651,7 @@ class Admin():
         bk=[]
         vals = []
         for i in inp:
-            print(self.bookstores)
+            # print(self.bookstores)
             bk.append(self.bookstores[int(i)-1])
             vals.append(0)
         dk = dict(zip(bk,vals))
@@ -716,7 +718,10 @@ class Admin():
         # base['cost'] = float(input("Enter the cost of the book: "))
         inp = input("Enter the cost of the book: ")
         if inp == "":
-            inp = 0.0
+            inp = 0.01
+        if float(inp) <= 0.0:
+            print("Books have a minimum price of 0.01$. Placing that.")
+            inp = 0.01
         book.cost = float(inp)
         # base['shipping_cost'] = float(input("Enter the shipping cost of the book: "))
         inp = input("Enter the shipping cost of the book: ")
@@ -759,7 +764,7 @@ class Admin():
         final_books = pd.DataFrame(columns=books.columns)
         for i in books_to_edit:
             final_books = pd.concat([blm.get_books_by_name_with_df(books, i), final_books])
-        
+        book_to_edit = ""
         if final_books.shape[0] > 1:
             book_to_edit = bo.print_dataframe(  df = final_books,
                                                 df_name = "book",
@@ -773,6 +778,8 @@ class Admin():
             if book_to_edit == "":
                 return
             book_to_edit = int(book_to_edit)
+        else:
+            book_to_edit = int(final_books.index.values[0])
         if not set(final_books.index.values).issuperset(set([book_to_edit])):
             print("Invalid Index. Please try again.")
         else:
@@ -790,7 +797,7 @@ class Admin():
                 bk=[]
                 vals = []
                 for i in inp:
-                    print(self.bookstores)
+                    # print(self.bookstores)
                     bk.append(self.bookstores[int(i)-1])
                     vals.append(0)
                 dk = dict(zip(bk,vals))
@@ -882,7 +889,7 @@ class Admin():
                 book.availability = False
             copies_per_bks = {}
             if dk == {}:
-                dk = self.bookstores
+                dk = book.bookstores
             for i in dk:
                 # base['bookstores'][i]=input(f"How many copies are in {i}? : ")
                 inp = input(f"How many copies are in {i}?  (leave empty for no edit): ") 
@@ -891,6 +898,12 @@ class Admin():
                 else:
                     copies_per_bks[i]=int(inp)
             book.bookstores = copies_per_bks
+            copies = 0
+            for i in book.bookstores:
+                copies = copies + book.bookstores[i]
+            # print("Copies")
+            # print(copies)
+            book.copies = copies
                 # dc = bo.dict_editor( self.auther.librarydb.get_book_as_dict(book.ID) )
                 # dc["ID"] = book.ID
                 # book = blm.Book()
@@ -1069,14 +1082,19 @@ class Admin():
                 return 
         else:
             books_to_del_int.append(final_books.index.values[0])
-        final_reviews = pd.DataFrame(columns=self.auther.librarydb.reviews_df.columns)
+        #final_reviews = pd.DataFrame(columns=self.auther.librarydb.reviews_df.columns)
+        final_reviews = pd.DataFrame(self.auther.librarydb.reviews_df)
+        print(final_reviews)
         for i in books_to_del_int:
-            final_reviews = pd.concat([self.auther.librarydb.reviews_df.loc[self.auther.librarydb.reviews_df["book_id"] == i], final_reviews])
+            # final_reviews = pd.concat([self.auther.librarydb.reviews_df.loc[self.auther.librarydb.reviews_df["book_id"] == i], final_reviews])
+            final_reviews = final_reviews.loc[final_reviews["book_id"] == i]
+            # final_reviews["user"] = self.auther.userdb.user_df.loc[final_reviews["user_id"]]
             if final_reviews.empty:
                 print("This book has no reviews")
                 continue
             reviews_to_del = bo.print_dataframe(  df = final_reviews,
                                                 df_name = "reviews",
+                                                # df_fields = ["rating", "contents", "user_id"],
                                                 df_fields = ["rating", "contents", "user_id"],
                                                 df_title = "Please search the IDs of the reviews you would like to delete.",
                                                 use_search = True,

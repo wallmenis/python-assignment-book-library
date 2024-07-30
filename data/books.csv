@@ -7,7 +7,7 @@ ID,title,author,publisher,categories,cost,shipping_cost,availability,copies,book
 10,The Hitchhiker's Guide to the Galaxy (Hitchhiker's Guide to the Galaxy  #1),Douglas Adams,Crown,"['mathematics', 'cooking']",44.29,3.01,True,84,"{'Cool Book Bro': 21, 'Philosophy In Scribes & Signatures': 8, 'Books Untravled Through Time': 0, 'Doctorate Institute Connection Kansas': 39}"
 12,The Ultimate Hitchhiker's Guide (Hitchhiker's Guide to the Galaxy  #1-5),Douglas Adams,Wings Books,"['mystery', 'sci-fi']",9.66,2.12,True,36,"{'Scripts Holden In Treasure': 17, 'Books Untravled Through Time': 6, 'Connecticut Universal Native Transcripts': 0, 'Cool Book Bro': 13}"
 13,A Short History of Nearly Everything,Bill Bryson,Broadway Books,['adventure'],45.74,1.09,True,132,"{'Cool Book Bro': 3, 'Books Untravled Through Time': 5, 'Connecticut Universal Native Transcripts': 20, 'Scripts Holden In Treasure': 74, 'Philosophy In Scribes & Signatures': 25}"
-14,Bill Bryson's African Diary,Bill Bryson,Broadway Books,['adventure'],18.16,1.16,True,132,"{'Books Untravled Through Time': 16, 'Philosophy In Scribes & Signatures': 50}"
+14,Bill Bryson's African Diary,Bill Bryson,Broadway Books,['adventure'],18.16,1.16,True,66,"{'Books Untravled Through Time': 16, 'Philosophy In Scribes & Signatures': 50}"
 15,Bryson's Dictionary of Troublesome Words: A Writer's Guide to Getting It Right,Bill Bryson,Broadway Books,['fantasy'],4.66,1.03,True,230,"{'Scripts Holden In Treasure': 97, 'Books Untravled Through Time': 6, 'Doctorate Institute Connection Kansas': 30}"
 16,In a Sunburned Country,Bill Bryson,Broadway Books,['cooking'],27.62,2.13,True,96,"{'Doctorate Institute Connection Kansas': 65, 'Cool Book Bro': 31}"
 17,I'm a Stranger Here Myself: Notes on Returning to America After Twenty Years Away,Bill Bryson,Broadway Books,"['biography', 'computer-science']",26.08,4.12,True,210,"{'Doctorate Institute Connection Kansas': 15, 'Philosophy In Scribes & Signatures': 25, 'Scripts Holden In Treasure': 85}"
@@ -58,4 +58,5 @@ ID,title,author,publisher,categories,cost,shipping_cost,availability,copies,book
 63,"Harry Potter Book Seven News: ""Half-Blood Prince"" Analysis and Speculation",W. Frederick Zimmerman,Nimble Books,"['fantasy', 'adventure']",45.95,4.94,True,5,{'Doctorate Institute Connection Kansas': 5}
 64,Mapping the Big Picture: Integrating Curriculum & Assessment K-12,Heidi Hayes Jacobs,Association for Supervision & Curriculum Development,['sci-fi'],44.22,1.33,True,191,"{'Cool Book Bro': 31, 'Doctorate Institute Connection Kansas': 22, 'Books Untravled Through Time': 0, 'Scripts Holden In Treasure': 76}"
 65,a,c,v,"['mathematics', 'history']",2.0,3.0,False,0,{'Connecticut Universal Native Transcripts': 0}
-66,aaa,vvv,bbb,"['mathematics', 'history', 'computer-science']",0.0,0.0,False,0,{'Connecticut Universal Native Transcripts': 0}
+66,aaa,vvv,bbb,"['mathematics', 'history', 'computer-science', 'comic']",2.0,2.0,True,1,{'Connecticut Universal Native Transcripts': 1}
+67,b,bb,bbb,['history'],3.0,3.0,True,3,"{'Cool Book Bro': 1, 'Connecticut Universal Native Transcripts': 2}"

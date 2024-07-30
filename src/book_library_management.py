@@ -111,7 +111,11 @@ class LibraryDB():
             return []
         self.books_df['categories'] = self.books_df['categories'].apply(to_int_list)
         self.books_df['bookstores'] = self.books_df['bookstores'].apply(to_int_list)
-        
+        def to_str(lis):
+            if pd.isna(lis):
+                return ""
+            return str(lis)
+        self.reviews_df['contents'] = self.reviews_df['contents'].apply(to_str)
         #self.user_books_df['categories'] = self.user_books_df['categories'].apply(to_int_list)
         #self.user_books_df['bookstores'] = self.user_books_df['bookstores'].apply(to_int_list)
 
@@ -189,6 +193,7 @@ class LibraryDB():
         book_id = self.orders_df.loc[index]['book_id']
         user_id = self.orders_df.loc[index]['user_id']
         self.books_df.loc[book_id]['bookstores'][bookstore] = self.books_df.loc[book_id]['bookstores'][bookstore] + 1
+        self.books_df.loc[index,'copies'] = self.books_df.loc[index]['copies'] - 1
         self.orders_df = self.orders_df.drop(index = index)
         tmp_rev_df = self.reviews_df
         tmp_rev_df = tmp_rev_df.loc[tmp_rev_df["user_id"] == user_id]
@@ -203,6 +208,7 @@ class LibraryDB():
         book_id = self.orders_df.loc[index]['book_id']
         user_id = self.orders_df.loc[index]['user_id']
         self.books_df.loc[book_id]['bookstores'][bookstore] = self.books_df.loc[book_id]['bookstores'][bookstore] + 1
+        self.books_df.loc[index,'copies'] = self.books_df.loc[index]['copies'] + 1
         self.orders_df = self.orders_df.drop(index = index)
         tmp_rev_df = self.reviews_df
         tmp_rev_df = tmp_rev_df.loc[tmp_rev_df["user_id"] == user_id]
@@ -231,7 +237,7 @@ class LibraryDB():
         self.books_df.loc[index]['bookstores'][bookstore] = self.books_df.loc[index]['bookstores'][bookstore] - 1
         self.books_df.loc[index,'copies'] = self.books_df.loc[index]['copies'] - 1
         if self.books_df.loc[index]['copies'] < 1:
-            self.books_df.loc[index]['availability'] = False
+            self.books_df.at[index, 'availability'] = False
         order_dict ={   'book_id' : index ,
                         'user_id' : user_id,
                         'bookstore' : bookstore,
