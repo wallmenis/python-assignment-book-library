@@ -313,7 +313,7 @@ class LibraryDB():
         bk = pd.DataFrame(bk)
         result = {}
         bk['total_cost'] = bk['cost'] + bk['shipping_cost']
-        bk = bk.sort_values(by = ['total_cost'], axis = 0, kind = "quicksort")
+        # bk = bk.sort_values(by = ['total_cost'], axis = 0, kind = "quicksort")
         max_price = bk.iloc[-1]['total_cost']
         print(max_price)
         # print(bk)
