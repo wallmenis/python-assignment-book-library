@@ -193,7 +193,7 @@ class LibraryDB():
         book_id = self.orders_df.loc[index]['book_id']
         user_id = self.orders_df.loc[index]['user_id']
         self.books_df.loc[book_id]['bookstores'][bookstore] = self.books_df.loc[book_id]['bookstores'][bookstore] + 1
-        self.books_df.loc[index,'copies'] = self.books_df.loc[index]['copies'] - 1
+        self.books_df.loc[book_id,'copies'] = self.books_df.loc[book_id]['copies'] + 1
         self.orders_df = self.orders_df.drop(index = index)
         tmp_rev_df = self.reviews_df
         tmp_rev_df = tmp_rev_df.loc[tmp_rev_df["user_id"] == user_id]
@@ -208,7 +208,7 @@ class LibraryDB():
         book_id = self.orders_df.loc[index]['book_id']
         user_id = self.orders_df.loc[index]['user_id']
         self.books_df.loc[book_id]['bookstores'][bookstore] = self.books_df.loc[book_id]['bookstores'][bookstore] + 1
-        self.books_df.loc[index,'copies'] = self.books_df.loc[index]['copies'] + 1
+        self.books_df.loc[book_id,'copies'] = self.books_df.loc[book_id]['copies'] + 1
         self.orders_df = self.orders_df.drop(index = index)
         tmp_rev_df = self.reviews_df
         tmp_rev_df = tmp_rev_df.loc[tmp_rev_df["user_id"] == user_id]

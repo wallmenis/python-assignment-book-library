@@ -260,6 +260,6 @@ def validate_password(password):
     output = 0
     if len(password) < 8:
         output += 1
-    if not len(re.sub("[^a-zA-Z0-9 ]", "", password)) > 0:
+    if not len(re.sub("[^a-zA-Z0-9 ]", "", password)) - len(password) < 0:
         output += 2
     return output
